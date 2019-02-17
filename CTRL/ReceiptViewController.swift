@@ -496,6 +496,8 @@ class ReceiptViewController: UIViewController, UICollectionViewDelegate, UIColle
 //    let alert = UIAlertController(title: "Warning!", message: "If you continue, all information will be lost; text/email to save receipt!", preferredStyle: UIAlertController.Style.alert)
     
     @objc func handleExitButton(){
+        self.timeInstance.logs = """
+        """
         timeInstance.isTutorialScreenLoadable = false
         let attributedString = NSAttributedString(string: "Warning!", attributes: [
             NSAttributedString.Key.font : UIFont.systemFont(ofSize: 15), //your font here
@@ -524,6 +526,31 @@ class ReceiptViewController: UIViewController, UICollectionViewDelegate, UIColle
         }))
         uiAlert.view.layoutIfNeeded()
         self.present(uiAlert, animated: true, completion: nil)
+    }
+    
+    lazy var logsButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.backgroundColor = UIColor(r: 109,g: 158,b: 235)
+        button.setTitle("Logs", for: .normal)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.setTitleColor(UIColor.white, for: .normal)
+        button.titleLabel?.font = UIFont.systemFont(ofSize: 14)
+        button.layer.masksToBounds = false
+        button.layer.cornerRadius = 12
+        button.layer.borderWidth = 1
+        button.layer.borderColor = UIColor(r: 142, g: 142, b: 142).cgColor
+        button.layer.shadowOffset = CGSize(width: 0, height: 7)
+        button.layer.shadowRadius = 2
+        button.layer.shadowOpacity = 0.4
+        button.addTarget(self, action: #selector(handleLogs), for:.touchUpInside)
+        return button
+    }()
+    
+    @objc func handleLogs(){
+        let viewController = LogsViewController()
+        let aObjNavi = UINavigationController(rootViewController: viewController)
+        let appDelegate: AppDelegate = (UIApplication.shared.delegate as? AppDelegate)!
+        appDelegate.window?.rootViewController = aObjNavi
     }
     
     func deinitializeValues(arg: Bool, completion: (Bool) -> ()){
@@ -1014,6 +1041,12 @@ class ReceiptViewController: UIViewController, UICollectionViewDelegate, UIColle
         exitButton.widthAnchor.constraint(equalToConstant: 180).isActive = true
         exitButton.topAnchor.constraint(equalTo: lineSeparator2.bottomAnchor, constant: 15).isActive = true
 
+        mainContainerView.addSubview(logsButton)
+        logsButton.leftAnchor.constraint(equalTo: exitButton.rightAnchor, constant: 10).isActive = true
+        logsButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
+        logsButton.widthAnchor.constraint(equalToConstant: 50).isActive = true
+        logsButton.topAnchor.constraint(equalTo: lineSeparator2.bottomAnchor, constant: 15).isActive = true
+        
         self.view.addSubview(self.boxView)
     }
 }

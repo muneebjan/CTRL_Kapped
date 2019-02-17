@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		4D0EF56322197C1100FAC025 /* LogsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D0EF56222197C1100FAC025 /* LogsViewController.swift */; };
 		4D13715C21CD550D00785950 /* Montserrat-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4D13715B21CD550D00785950 /* Montserrat-Bold.ttf */; };
 		4D236F4121F8613C00A21C1B /* CameraViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D236F4021F8613C00A21C1B /* CameraViewController.swift */; };
 		4D495DAC21B50A5D00D8D0C6 /* Timings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D495DAB21B50A5D00D8D0C6 /* Timings.swift */; };
@@ -24,6 +25,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		4D0EF56222197C1100FAC025 /* LogsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogsViewController.swift; sourceTree = "<group>"; };
 		4D13715B21CD550D00785950 /* Montserrat-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Montserrat-Bold.ttf"; sourceTree = "<group>"; };
 		4D236F4021F8613C00A21C1B /* CameraViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraViewController.swift; sourceTree = "<group>"; };
 		4D495DAB21B50A5D00D8D0C6 /* Timings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Timings.swift; sourceTree = "<group>"; };
@@ -92,6 +94,7 @@
 				4DC6E08A21A6765C00A0DB35 /* PickUpViewController.swift */,
 				4DC6E08E21A6BF3800A0DB35 /* EndViewController.swift */,
 				4DC6E09021A6CDBD00A0DB35 /* ReceiptViewController.swift */,
+				4D0EF56222197C1100FAC025 /* LogsViewController.swift */,
 				4D495DAB21B50A5D00D8D0C6 /* Timings.swift */,
 				4D495DAD21B54CB900D8D0C6 /* ToastView.swift */,
 				4DC6E08C21A6767E00A0DB35 /* TimeInfo.swift */,
@@ -240,6 +243,7 @@
 				4DC6E08F21A6BF3800A0DB35 /* EndViewController.swift in Sources */,
 				4DC6E08B21A6765C00A0DB35 /* PickUpViewController.swift in Sources */,
 				4DC6E09121A6CDBD00A0DB35 /* ReceiptViewController.swift in Sources */,
+				4D0EF56322197C1100FAC025 /* LogsViewController.swift in Sources */,
 				4DC6E07B21A675E700A0DB35 /* ViewController.swift in Sources */,
 				4D495DAC21B50A5D00D8D0C6 /* Timings.swift in Sources */,
 				4DC6E07921A675E700A0DB35 /* AppDelegate.swift in Sources */,

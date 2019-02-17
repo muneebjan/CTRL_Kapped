@@ -206,6 +206,7 @@ class ViewController: UIViewController, UITextFieldDelegate {
                     setStartValues(arg: true, completion: { (success) -> Void in
                         print("Second line of code executed")
                         if success {
+                            self.timeInstance.logs += "Timer started is \(UserDefaults.standard.bool(forKey: "timerStarted"))\n\n"
                             let pickUpViewController = PickUpViewController()
                             let aObjNavi = UINavigationController(rootViewController: pickUpViewController)
                             let appDelegate: AppDelegate = (UIApplication.shared.delegate as? AppDelegate)!
