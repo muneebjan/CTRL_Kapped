@@ -136,7 +136,7 @@ class EndViewController: UIViewController {
     
     lazy var clockOutButton: UIButton = {
         let button = UIButton(type: .system)
-        button.backgroundColor = UIColor(r: 109, g:158, b:235)
+        button.backgroundColor = UIColor(r: 109,g: 158,b: 235)
         button.setTitle("Clock Out", for: .normal)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setTitleColor(UIColor.white, for: .normal)
@@ -157,8 +157,8 @@ class EndViewController: UIViewController {
     func addSavingPhotoView() {
         // You only need to adjust this frame to move it anywhere you want
         boxView = UIView(frame: CGRect(x: view.frame.midX - 90, y: view.frame.midY - 25, width: 180, height: 50))
-        boxView.backgroundColor = UIColor.white
-        boxView.alpha = 0.8
+        boxView.backgroundColor = UIColor.lightGray
+        boxView.alpha = 1
         boxView.layer.cornerRadius = 10
         
         //Here the spinnier is initialized
@@ -169,28 +169,34 @@ class EndViewController: UIViewController {
         
         let textLabel = UILabel(frame: CGRect(x: 60, y: 0, width: 200, height: 50))
         
-        textLabel.textColor = UIColor.gray
+        textLabel.textColor = UIColor.darkGray
         textLabel.text = "Saving Pickups"
-        
-        boxView.addSubview(activityView)
-        boxView.addSubview(textLabel)
+        self.boxView.addSubview(activityView)
+        self.boxView.addSubview(textLabel)
         print("box set")
     }
     
     @objc func handleClockOutButton(){
-//        stopTimerTest()
-        print("clock out")
+        setTimerStartedFalse(arg: true, completion: { [weak self] (success) -> Void in
+            print("Second line of code executed")
+            if success {
+                let aObjNavi = UINavigationController(rootViewController: ReceiptViewController())
+                let appDelegate: AppDelegate = (UIApplication.shared.delegate as? AppDelegate)!
+                appDelegate.window?.rootViewController = aObjNavi
+            } else {
+                print("false")
+            }
+            print(UserDefaults.standard.bool(forKey: "timerStarted"))
+        })
+    }
+    
+    func setTimerStartedFalse(arg: Bool, completion: (Bool) -> ()){
         self.view.addSubview(self.boxView)
+        print("clock out")
         print("spinner started")
-        
         UserDefaults.standard.set(false, forKey: "timerStarted")
         UserDefaults.standard.synchronize()
-        DispatchQueue.main.async {
-        let receiptViewController = ReceiptViewController()
-        let aObjNavi = UINavigationController(rootViewController: receiptViewController)
-        let appDelegate: AppDelegate = (UIApplication.shared.delegate as? AppDelegate)!
-        appDelegate.window?.rootViewController = aObjNavi
-        }
+        completion(true)
     }
     
     let logoImageView: UIImageView = {
@@ -206,25 +212,15 @@ class EndViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         UserDefaults.standard.set(3, forKey: "state")
+        UserDefaults.standard.set(false, forKey: "timerStarted")
         UserDefaults.standard.synchronize()
         print(UserDefaults.standard.integer(forKey: "seconds"))
         addSavingPhotoView()
         view.backgroundColor = .white
-//        let backBarButton = UIBarButtonItem(barButtonSystemItem: .reply, target: self, action: #selector(handleBackButton))
-//        backBarButton.tintColor = .gray
-//        self.navigationItem.leftBarButtonItem = backBarButton
         setupViews()
     }
-    
-//    @objc func handleBackButton(){
-//        let pickUpViewController = PickUpViewController()
-//        let aObjNavi = UINavigationController(rootViewController: pickUpViewController)
-//        let appDelegate: AppDelegate = (UIApplication.shared.delegate as? AppDelegate)!
-//        appDelegate.window?.rootViewController = aObjNavi
-//    }
-    
+
     func setupViews(){
-        
         view.addSubview(mainContainerView)
         mainContainerView.heightAnchor.constraint(equalToConstant: 667.0).isActive = true
         mainContainerView.widthAnchor.constraint(equalToConstant: 375.0).isActive = true
@@ -272,7 +268,7 @@ class EndViewController: UIViewController {
         logoImageView.centerXAnchor.constraint(equalTo: mainContainerView.centerXAnchor).isActive = true
         logoImageView.heightAnchor.constraint(equalToConstant: 100).isActive = true
         logoImageView.widthAnchor.constraint(equalTo: mainContainerView.widthAnchor, constant: -80).isActive = true
-        logoImageView.bottomAnchor.constraint(equalTo: mainContainerView.bottomAnchor, constant: -20).isActive = true
+        logoImageView.bottomAnchor.constraint(equalTo: mainContainerView.bottomAnchor, constant: -30).isActive = true
         
     }
 

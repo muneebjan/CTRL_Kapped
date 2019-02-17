@@ -11,6 +11,9 @@ import Foundation
 class TimeInfo: NSObject {
     
     static let sharedInstance = TimeInfo()
+    
+    var currentTimeZone = String(TimeZone.current.identifier)
+    
     var gameStartTime = 0
     var gameStopTime = 0
     
@@ -27,10 +30,14 @@ class TimeInfo: NSObject {
     var currentHours: Int = 0
     var currentMinutes: Int = 0
     var currentSeconds: Int = 0
+    var currentMilliSeconds: Int = 0
+    var isTutorialScreenLoadable: Bool = true
+    var screenLock = false
     
     var yourName: String = ""
     var gameName: String = ""
-    
+    var logs: String = """
+                       """
 //    var lockscreenCount: Int = 0
 //    var foregroundCount: Int = 0
     var state: Int = 0

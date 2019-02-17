@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		4D13715C21CD550D00785950 /* Montserrat-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4D13715B21CD550D00785950 /* Montserrat-Bold.ttf */; };
+		4D236F4121F8613C00A21C1B /* CameraViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D236F4021F8613C00A21C1B /* CameraViewController.swift */; };
 		4D495DAC21B50A5D00D8D0C6 /* Timings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D495DAB21B50A5D00D8D0C6 /* Timings.swift */; };
 		4D495DAE21B54CB900D8D0C6 /* ToastView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D495DAD21B54CB900D8D0C6 /* ToastView.swift */; };
 		4DC6E07921A675E700A0DB35 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4DC6E07821A675E700A0DB35 /* AppDelegate.swift */; };
@@ -22,6 +24,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		4D13715B21CD550D00785950 /* Montserrat-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Montserrat-Bold.ttf"; sourceTree = "<group>"; };
+		4D236F4021F8613C00A21C1B /* CameraViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraViewController.swift; sourceTree = "<group>"; };
 		4D495DAB21B50A5D00D8D0C6 /* Timings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Timings.swift; sourceTree = "<group>"; };
 		4D495DAD21B54CB900D8D0C6 /* ToastView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ToastView.swift; sourceTree = "<group>"; };
 		4DC6E07521A675E700A0DB35 /* CTRL.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CTRL.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -84,6 +88,7 @@
 			children = (
 				4DC6E07821A675E700A0DB35 /* AppDelegate.swift */,
 				4DC6E07A21A675E700A0DB35 /* ViewController.swift */,
+				4D236F4021F8613C00A21C1B /* CameraViewController.swift */,
 				4DC6E08A21A6765C00A0DB35 /* PickUpViewController.swift */,
 				4DC6E08E21A6BF3800A0DB35 /* EndViewController.swift */,
 				4DC6E09021A6CDBD00A0DB35 /* ReceiptViewController.swift */,
@@ -94,6 +99,7 @@
 				4DC6E07F21A675ED00A0DB35 /* Assets.xcassets */,
 				4DC6E08121A675ED00A0DB35 /* LaunchScreen.storyboard */,
 				4DC6E08421A675ED00A0DB35 /* Info.plist */,
+				4D13715B21CD550D00785950 /* Montserrat-Bold.ttf */,
 			);
 			path = CTRL;
 			sourceTree = "<group>";
@@ -166,6 +172,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4D13715C21CD550D00785950 /* Montserrat-Bold.ttf in Resources */,
 				4DC6E08321A675ED00A0DB35 /* LaunchScreen.storyboard in Resources */,
 				4DC6E08021A675ED00A0DB35 /* Assets.xcassets in Resources */,
 				4DC6E07E21A675E700A0DB35 /* Main.storyboard in Resources */,
@@ -236,6 +243,7 @@
 				4DC6E07B21A675E700A0DB35 /* ViewController.swift in Sources */,
 				4D495DAC21B50A5D00D8D0C6 /* Timings.swift in Sources */,
 				4DC6E07921A675E700A0DB35 /* AppDelegate.swift in Sources */,
+				4D236F4121F8613C00A21C1B /* CameraViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

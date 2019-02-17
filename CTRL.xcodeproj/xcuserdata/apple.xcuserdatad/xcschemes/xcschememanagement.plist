@@ -7,15 +7,7 @@
 		<key>CTRL.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>3</integer>
-		</dict>
-	</dict>
-	<key>SuppressBuildableAutocreation</key>
-	<dict>
-		<key>4DC6E07421A675E700A0DB35</key>
-		<dict>
-			<key>primary</key>
-			<true/>
+			<integer>0</integer>
 		</dict>
 	</dict>
 </dict>

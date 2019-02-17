@@ -8,62 +8,226 @@
 
 import UIKit
 import RealmSwift
+import UserNotifications
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
     static var pickUpNumber = UserDefaults.standard.integer(forKey: "pickUpNumber")
     var window: UIWindow?
+    var diffHrs = 0
+    var diffMins: Int = 0
+    var diffSecs = 0
+    var bootTime: Int  = 0
+    var didTurnOff = false
+    var didEnterBackground = false
     let timeInstance = TimeInfo.sharedInstance
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
 //        UserDefaults.standard.set(1, forKey: "state")
 //        UserDefaults.standard.synchronize()
+        var boottime = timeval()
+        var size = MemoryLayout<timeval>.stride
+        sysctlbyname("kern.boottime", &boottime, &size, nil, 0)
+        print("Boot Time: \(boottime.tv_sec * 1000)")
+        bootTime = Int(boottime.tv_sec * 1000)
+        UserDefaults.standard.set(bootTime, forKey: "bootTime")
+        UserDefaults.standard.set(String(TimeZone.current.identifier),forKey: "timeZone")
+        UserDefaults.standard.synchronize()
+        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge], completionHandler: {didAllow, error in
+        })
+        UNUserNotificationCenter.current().removeDeliveredNotifications(withIdentifiers: ["timerDone"])
+//        timeInstance.currentTimeZone =  String(TimeZone.current.identifier)
         window = UIWindow(frame: UIScreen.main.bounds)
         window?.makeKeyAndVisible()
+        let formatter = DateFormatter()
+        formatter.timeZone = NSTimeZone(name: UserDefaults.standard.string(forKey: "timeZone")!)! as TimeZone
+        formatter.dateFormat = "hh:mm:ss a"
+        self.timeInstance.hours = UserDefaults.standard.integer(forKey: "hours")
+        self.timeInstance.minutes = UserDefaults.standard.integer(forKey: "minutes")
+        self.timeInstance.seconds = UserDefaults.standard.integer(forKey: "seconds")
+        self.timeInstance.logs += "didFinishLaunchingWithOptions Entered\n\n"
         if UserDefaults.standard.integer(forKey: "state") == 1 || UserDefaults.standard.integer(forKey: "state") == 0{
             AppDelegate.pickUpNumber = 0
+            self.timeInstance.logs += "didFinishLaunchingWithOptions state 1\n\n"
             window?.rootViewController = UINavigationController(rootViewController: ViewController())
         }
+        
         if UserDefaults.standard.integer(forKey: "state") == 2{
-            if UserDefaults.standard.bool(forKey: "timerStarted") == false{
-                AppDelegate.pickUpNumber = 0
-                window?.rootViewController = UINavigationController(rootViewController: ViewController())
-            }
-            DispatchQueue.main.async {
-                let time = Date().millisecondsSince1970
-                let date = NSDate(timeIntervalSince1970: Double(time) / 1000)
-                let formatter = DateFormatter()
-                formatter.timeZone = NSTimeZone(name: "UTC")! as TimeZone
-                formatter.dateFormat = "hh:mm:ss a"
-                //            print("Current Time: \(formatter.string(from: date as Date))")
-                self.timeInstance.currentSeconds = UserDefaults.standard.integer(forKey: "currentSeconds")
-                self.timeInstance.currentMinutes = UserDefaults.standard.integer(forKey: "currentMinutes")
-                self.timeInstance.currentHours = UserDefaults.standard.integer(forKey: "currentHours")
-                self.timeInstance.hours = UserDefaults.standard.integer(forKey: "hours")
-                self.timeInstance.minutes = UserDefaults.standard.integer(forKey: "minutes")
-                self.timeInstance.seconds = UserDefaults.standard.integer(forKey: "seconds")
-                //            print("Current Seconds Stored: \(self.timeInstance.currentSeconds)")
-                self.timeInstance.pickUpTime = Date().millisecondsSince1970
-                self.timeInstance.currentPickDuration = self.timeInstance.pickUpTime - UserDefaults.standard.integer(forKey: "putDownTime")
-                self.msToTime(duration: self.timeInstance.currentPickDuration)
-                self.timeInstance.allPickDurations = UserDefaults.standard.integer(forKey: "pickDuration")
-                self.timeInstance.allPickDurations += self.timeInstance.currentPickDuration
-                UserDefaults.standard.set(self.timeInstance.allPickDurations, forKey: "pickDuration")
-                UserDefaults.standard.synchronize()
-                let myTimings = Timings()
-                AppDelegate.pickUpNumber += 1
-                UserDefaults.standard.set(AppDelegate.pickUpNumber, forKey: "pickUpNumber")
-                UserDefaults.standard.synchronize()
-                myTimings.pickUpNumber = "Pickup \(UserDefaults.standard.integer(forKey: "pickUpNumber"))"
-                myTimings.pickUpTime = "\(formatter.string(from: date as Date))"
-                myTimings.dropDownTime = "\(UserDefaults.standard.string(forKey: "putDownTimeDisplay") ?? "00:00:00 PM")"
-                let realm = try! Realm()
-                try! realm.write {
-                    realm.add(myTimings)
+            self.timeInstance.logs += "didFinishLaunchingWithOptions state 2\n\n"
+            let time = Date().millisecondsSince1970
+            if bootTime >= UserDefaults.standard.integer(forKey: "putDownTime") {
+                self.didTurnOff = true
+                self.timeInstance.logs += "didFinishLaunchingWithOptions did restart bootTime \(bootTime) putDownTime \(UserDefaults.standard.integer(forKey: "putDownTime"))\n\n"
+
+                if time >= UserDefaults.standard.integer(forKey: "timerShouldStopAtMilliSeconds"){
+                    self.timeInstance.logs += "didFinishLaunchingWithOptions restarted & exceeded: current time \(time)\n\n"
+                    if (UserDefaults.standard.integer(forKey: "timerShouldStopAtMilliSeconds") - bootTime) > 30000{
+                        timeInstance.currentPickDuration = UserDefaults.standard.integer(forKey: "timerShouldStopAtMilliSeconds") - UserDefaults.standard.integer(forKey: "putDownTime")
+                        self.timeInstance.logs += "didFinishLaunchingWithOptions did pickup after 5 sec putdown time \(UserDefaults.standard.integer(forKey: "putDownTime"))\n\n"
+                        timeInstance.pickUpTime = UserDefaults.standard.integer(forKey: "timerShouldStopAtMilliSeconds")
+                        print("time exceeded pick count")
+                        let date = NSDate(timeIntervalSince1970: Double(self.timeInstance.pickUpTime) / 1000)
+                        self.timeInstance.currentSeconds = UserDefaults.standard.integer(forKey: "currentSeconds")
+                        self.timeInstance.currentMinutes = UserDefaults.standard.integer(forKey: "currentMinutes")
+                        self.timeInstance.currentHours = UserDefaults.standard.integer(forKey: "currentHours")
+                        self.msToTime(duration: UserDefaults.standard.integer(forKey: "timerShouldStopAtMilliSeconds"))
+                        print(self.timeInstance.pickUpTime - UserDefaults.standard.integer(forKey: "timerStartedTime"))
+                        self.timeInstance.allPickDurations = UserDefaults.standard.integer(forKey: "pickDuration")
+                        self.timeInstance.allPickDurations += self.timeInstance.currentPickDuration
+                        UserDefaults.standard.set(self.timeInstance.allPickDurations, forKey: "pickDuration")
+                        let date2 = NSDate(timeIntervalSince1970: Double(UserDefaults.standard.integer(forKey: "putDownTime") + 5000) / 1000)
+                        UserDefaults.standard.set(formatter.string(from: date2 as Date), forKey: "putDownTimeDisplay")
+                        UserDefaults.standard.synchronize()
+                        let myTimings = Timings()
+                        AppDelegate.pickUpNumber += 1
+                        UserDefaults.standard.set(AppDelegate.pickUpNumber, forKey: "pickUpNumber")
+                        UserDefaults.standard.synchronize()
+                        myTimings.pickUpNumber = "Pickup \(UserDefaults.standard.integer(forKey: "pickUpNumber"))"
+                        myTimings.pickUpTime = "\(formatter.string(from: date as Date))"
+                        myTimings.dropDownTime = "\(UserDefaults.standard.string(forKey: "putDownTimeDisplay") ?? "00:00:00 PM")"
+                        self.timeInstance.logs += "didFinishLaunchingWithOptions putdownTime in database \(myTimings.dropDownTime)\n\n"
+                        let realm = try! Realm()
+                        print("About to write into Realm")
+                        try! realm.write {
+                            print("writing into Realm: \(myTimings)")
+                            realm.add(myTimings)
+                        }
+                        window?.rootViewController = UINavigationController(rootViewController: PickUpViewController())
+                    }
+                    else{
+                        msToTime(duration: UserDefaults.standard.integer(forKey: "timerShouldStopAtMilliSeconds"))
+                        print("time exceded pick not count")
+                        window?.rootViewController = UINavigationController(rootViewController: PickUpViewController())
+                    }
                 }
+                else{
+                    self.timeInstance.logs += "didFinishLaunchingWithOptions restart not exceed putDownTime \(UserDefaults.standard.integer(forKey: "putDownTime"))\n\n"
+                    if (time - bootTime) > 30000{
+                        timeInstance.currentPickDuration = time - UserDefaults.standard.integer(forKey: "putDownTime")
+                        self.timeInstance.logs += "didFinishLaunchingWithOptions if time-bootTime>5 sec then current time \(time)\n\n"
+                        self.timeInstance.pickUpTime = time
+                        print("time not exceded pick count")
+                        let date = NSDate(timeIntervalSince1970: Double(self.timeInstance.pickUpTime) / 1000)
+                        self.timeInstance.currentSeconds = UserDefaults.standard.integer(forKey: "currentSeconds")
+                        self.timeInstance.currentMinutes = UserDefaults.standard.integer(forKey: "currentMinutes")
+                        self.timeInstance.currentHours = UserDefaults.standard.integer(forKey: "currentHours")
+                        self.msToTime(duration: (time - UserDefaults.standard.integer(forKey: "timerStartedTime")))
+                        print(self.timeInstance.pickUpTime - UserDefaults.standard.integer(forKey: "timerStartedTime"))
+                        self.timeInstance.allPickDurations = UserDefaults.standard.integer(forKey: "pickDuration")
+                        self.timeInstance.allPickDurations += self.timeInstance.currentPickDuration
+                        UserDefaults.standard.set(self.timeInstance.allPickDurations, forKey: "pickDuration")
+                        let date2 = NSDate(timeIntervalSince1970: Double(UserDefaults.standard.integer(forKey: "putDownTime") + 5000) / 1000)
+                        self.timeInstance.logs += "didFinishLaunchingWithOptions if time-bootTime>5sec then putdown time \(UserDefaults.standard.integer(forKey: "putDownTime"))\n\n"
+                        UserDefaults.standard.set(formatter.string(from: date2 as Date), forKey: "putDownTimeDisplay")
+                        AppDelegate.pickUpNumber += 1
+                        UserDefaults.standard.set(AppDelegate.pickUpNumber, forKey: "pickUpNumber")
+                        UserDefaults.standard.synchronize()
+                        let myTimings = Timings()
+                        myTimings.pickUpNumber = "Pickup \(UserDefaults.standard.integer(forKey: "pickUpNumber"))"
+                        myTimings.pickUpTime = "\(formatter.string(from: date as Date))"
+                        myTimings.dropDownTime = "\(UserDefaults.standard.string(forKey: "putDownTimeDisplay") ?? "00:00:00 PM")"
+                        self.timeInstance.logs += "didFinishLaunchingWithOptions database putDownTime \(myTimings.dropDownTime)\n\n"
+                        let realm = try! Realm()
+                        print("About to write into Realm")
+                        try! realm.write {
+                            print("writing into Realm: \(myTimings)")
+                            realm.add(myTimings)
+                        }
+                        window?.rootViewController = UINavigationController(rootViewController: PickUpViewController())
+                    }
+                    else{
+                        msToTime(duration: (time - UserDefaults.standard.integer(forKey: "timerStartedTime")))
+                        print("time not exceded pick not count")
+                        window?.rootViewController = UINavigationController(rootViewController: PickUpViewController())
+                    }
+                }
+
             }
-            window?.rootViewController = UINavigationController(rootViewController: PickUpViewController())
+            else{
+                self.timeInstance.logs += "didFinishLaunchingWithOptions no restart putDownTime \(UserDefaults.standard.integer(forKey: "putDownTime"))\n\n"
+                if time >= UserDefaults.standard.integer(forKey: "timerShouldStopAtMilliSeconds"){
+                    self.timeInstance.logs += "didFinishLaunchingWithOptions no restart time exceeded current time \(time)\n\n"
+                    if (UserDefaults.standard.integer(forKey: "timerShouldStopAtMilliSeconds") - UserDefaults.standard.integer(forKey: "putDownTime")) > 1000{
+                        self.timeInstance.logs += "didFinishLaunchingWithOptions no restart did pick after 5 sec\n\n"
+                        timeInstance.currentPickDuration = UserDefaults.standard.integer(forKey: "timerShouldStopAtMilliSeconds") - UserDefaults.standard.integer(forKey: "putDownTime")
+                        timeInstance.pickUpTime = UserDefaults.standard.integer(forKey: "timerShouldStopAtMilliSeconds")
+                        print("time exceded pick count")
+                        let date = NSDate(timeIntervalSince1970: Double(self.timeInstance.pickUpTime) / 1000)
+                        self.timeInstance.currentSeconds = UserDefaults.standard.integer(forKey: "currentSeconds")
+                        self.timeInstance.currentMinutes = UserDefaults.standard.integer(forKey: "currentMinutes")
+                        self.timeInstance.currentHours = UserDefaults.standard.integer(forKey: "currentHours")
+                        self.msToTime(duration: UserDefaults.standard.integer(forKey: "putDownTime"))
+                        print(self.timeInstance.pickUpTime - UserDefaults.standard.integer(forKey: "timerStartedTime"))
+                        self.timeInstance.allPickDurations = UserDefaults.standard.integer(forKey: "pickDuration")
+                        self.timeInstance.allPickDurations += self.timeInstance.currentPickDuration
+                        UserDefaults.standard.set(self.timeInstance.allPickDurations, forKey: "pickDuration")
+                        UserDefaults.standard.synchronize()
+                        let myTimings = Timings()
+                        AppDelegate.pickUpNumber += 1
+                        UserDefaults.standard.set(AppDelegate.pickUpNumber, forKey: "pickUpNumber")
+                        UserDefaults.standard.synchronize()
+                        myTimings.pickUpNumber = "Pickup \(UserDefaults.standard.integer(forKey: "pickUpNumber"))"
+                        myTimings.pickUpTime = "\(formatter.string(from: date as Date))"
+                        myTimings.dropDownTime = "\(UserDefaults.standard.string(forKey: "putDownTimeDisplay") ?? "00:00:00 PM")"
+                        self.timeInstance.logs += "didFinishLaunchingWithOptions no restart database putDownTime \(myTimings.dropDownTime)\n\n"
+                        let realm = try! Realm()
+                        print("About to write into Realm")
+                        try! realm.write {
+                            print("writing into Realm: \(myTimings)")
+                            realm.add(myTimings)
+                        }
+                        window?.rootViewController = UINavigationController(rootViewController: PickUpViewController())
+                    }
+                    else{
+                        msToTime(duration: UserDefaults.standard.integer(forKey: "putDownTime"))
+                        print("time exceded pick not count")
+                        window?.rootViewController = UINavigationController(rootViewController: PickUpViewController())
+                    }
+                }
+                else{
+                    self.timeInstance.logs += "didFinishLaunchingWithOptions no restart not exceed \(UserDefaults.standard.integer(forKey: "putDownTime"))\n\n"
+                    if (time - UserDefaults.standard.integer(forKey: "putDownTime")) > 1000{
+                        self.timeInstance.logs += "didFinishLaunchingWithOptions no restart not exceed pick after 5 sec)\n\n"
+                        timeInstance.currentPickDuration = time - UserDefaults.standard.integer(forKey: "putDownTime")
+                        self.timeInstance.pickUpTime = time
+                        print("time not exceded pick count")
+                        let date = NSDate(timeIntervalSince1970: Double(self.timeInstance.pickUpTime) / 1000)
+                        self.timeInstance.currentSeconds = UserDefaults.standard.integer(forKey: "currentSeconds")
+                        self.timeInstance.currentMinutes = UserDefaults.standard.integer(forKey: "currentMinutes")
+                        self.timeInstance.currentHours = UserDefaults.standard.integer(forKey: "currentHours")
+                        self.msToTime(duration: self.timeInstance.pickUpTime - UserDefaults.standard.integer(forKey: "timerStartedTime"))
+                        print(self.timeInstance.pickUpTime - UserDefaults.standard.integer(forKey: "timerStartedTime"))
+                        self.timeInstance.allPickDurations = UserDefaults.standard.integer(forKey: "pickDuration")
+                        self.timeInstance.allPickDurations += self.timeInstance.currentPickDuration
+                        UserDefaults.standard.set(self.timeInstance.allPickDurations, forKey: "pickDuration")
+                        UserDefaults.standard.synchronize()
+                        let myTimings = Timings()
+                        AppDelegate.pickUpNumber += 1
+                        UserDefaults.standard.set(AppDelegate.pickUpNumber, forKey: "pickUpNumber")
+                        UserDefaults.standard.synchronize()
+                        myTimings.pickUpNumber = "Pickup \(UserDefaults.standard.integer(forKey: "pickUpNumber"))"
+                        myTimings.pickUpTime = "\(formatter.string(from: date as Date))"
+                        myTimings.dropDownTime = "\(UserDefaults.standard.string(forKey: "putDownTimeDisplay") ?? "00:00:00 PM")"
+                        self.timeInstance.logs += "didFinishLaunchingWithOptions no restart putDownTime \(myTimings.dropDownTime)\n\n"
+                        let realm = try! Realm()
+                        print("About to write into Realm")
+                        try! realm.write {
+                            print("writing into Realm: \(myTimings)")
+                            realm.add(myTimings)
+                        }
+                        window?.rootViewController = UINavigationController(rootViewController: PickUpViewController())
+                    }
+                    else{
+                        self.timeInstance.pickUpTime = time
+                        msToTime(duration: self.timeInstance.pickUpTime - UserDefaults.standard.integer(forKey: "timerStartedTime"))
+                        print("time not exceded pick not count")
+                        window?.rootViewController = UINavigationController(rootViewController: PickUpViewController())
+                    }
+                }
+
+            }
         }
         if UserDefaults.standard.integer(forKey: "state") == 3{
+            self.timeInstance.logs += "didFinishLaunchingWithOptions state 3\n\n"
             AppDelegate.pickUpNumber = 0
             timeInstance.hours = UserDefaults.standard.integer(forKey: "hours")
             timeInstance.minutes = UserDefaults.standard.integer(forKey: "minutes")
@@ -72,117 +236,141 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         }
         if UserDefaults.standard.integer(forKey: "state") == 4{
             AppDelegate.pickUpNumber = 0
+            self.timeInstance.logs += "didFinishLaunchingWithOptions state 4\n\n"
             timeInstance.hours = UserDefaults.standard.integer(forKey: "hours")
             timeInstance.minutes = UserDefaults.standard.integer(forKey: "minutes")
             timeInstance.seconds = UserDefaults.standard.integer(forKey: "seconds")
             window?.rootViewController = UINavigationController(rootViewController: ReceiptViewController())
         }
-        
-        //        UINavigationBar.appearance().barTintColor = UIColor(white: 1, alpha: 0.0)
-        //        UINavigationBar.appearance().tintColor = UIColor(white: 1, alpha: 0.0)
-        let lagFreeField: UITextField = UITextField()
-        window?.addSubview(lagFreeField)
-        lagFreeField.becomeFirstResponder()
-        lagFreeField.resignFirstResponder()
-        lagFreeField.removeFromSuperview()
+
         UINavigationBar.appearance().titleTextAttributes = [NSAttributedString.Key.foregroundColor: UIColor.white]
         UINavigationBar.appearance().setBackgroundImage(UIImage(), for: .default)
         UINavigationBar.appearance().shadowImage = UIImage()
-        //        UIApplication.shared.statusBarStyle = .lightContent
         UINavigationBar.appearance().backgroundColor = .clear
         UINavigationBar.appearance().isTranslucent = true
         return true
     }
     
     func applicationWillResignActive(_ application: UIApplication) {
-        // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
-        // Use this method to pause ongoing tasks, disable timers, and invalidate graphics rendering callbacks. Games should use this method to pause the game.
+        print("Will Resign Active is Called")
     }
     
     func applicationDidEnterBackground(_ application: UIApplication) {
-        // Use this method to release shared resources, save user data, invalidate timers, and store enough application state information to restore your application to its current state in case it is terminated later.
-        // If your application supports background execution, this method is called instead of applicationWillTerminate: when the user quits.
-        let currentBrightness = UIScreen.main.brightness
-        let time = Date().millisecondsSince1970
+        print("Did Enter Background")
+        self.timeInstance.logs += "application Did Enter Background \n\n"
+        let time = Date().millisecondsSince1970 + 5000
         let date = NSDate(timeIntervalSince1970: Double(time) / 1000)
         let formatter = DateFormatter()
-        formatter.timeZone = NSTimeZone(name: "UTC")! as TimeZone
+        formatter.timeZone = NSTimeZone(name: UserDefaults.standard.string(forKey: "timeZone")!)! as TimeZone
         formatter.dateFormat = "hh:mm:ss a"
         print("Current Time: \(formatter.string(from: date as Date))")
-        print("brightness value: \(currentBrightness)")
-//        if timeInstance.timerStarted == true && timeInstance.lockscreenCount == 0{
-//            timeInstance.lockscreenCount  += 1
-//            return
-//        }
-        
-        if(currentBrightness <= 0){
-//            timeInstance.lockscreenCount += 1
-            UserDefaults.standard.set(Date().millisecondsSince1970, forKey: "putDownTime")
-            UserDefaults.standard.set("\(formatter.string(from: date as Date))", forKey: "putDownTimeDisplay")
-            UserDefaults.standard.synchronize()
-//            print("\(timeInstance.lockscreenCount) times screen was lock screen")
+        if UserDefaults.standard.bool(forKey: "timerStarted") == true {
+            if(UIScreen.main.brightness > 0){
+                timeInstance.screenLock = false
+                UserDefaults.standard.set(time, forKey: "putDownTime")
+                UserDefaults.standard.set("\(formatter.string(from: date as Date))", forKey: "putDownTimeDisplay")
+                UserDefaults.standard.synchronize()
+                self.timeInstance.logs += "application Did Enter Background \(UserDefaults.standard.integer(forKey: "putDownTime"))\n\n"
+                self.timeInstance.logs += "application Did Enter Background \(String(describing: UserDefaults.standard.string(forKey: "putDownTimeDisplay")))\n\n"
+                let content = UNMutableNotificationContent()
+                content.title = "You've left Kapper!"
+                content.body = "Use this link to enter back in before your activity-clock starts counting!"
+                let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 0.5, repeats: false)
+                let request = UNNotificationRequest(identifier: "timerDone", content: content, trigger: trigger)
+                UNUserNotificationCenter.current().add(request, withCompletionHandler: nil)
+                print("\(timeInstance.screenLock) times screen was background")
+            }
+            else{
+                self.timeInstance.logs += "application Did Enter Background with screen lock \n\n"
+                timeInstance.screenLock = true
+                print("\(timeInstance.screenLock) times screen was lock screen")
+            }
+            print("brightness value: \(UIScreen.main.brightness)")
         }
-        else{
-//            timeInstance.lockscreenCount += 1
-            UserDefaults.standard.set(Date().millisecondsSince1970, forKey: "putDownTime")
-            UserDefaults.standard.set("\(formatter.string(from: date as Date))", forKey: "putDownTimeDisplay")
-            UserDefaults.standard.synchronize()
-//            print("\(timeInstance.lockscreenCount) times screen was lock screen")
-        }
-        
-        if UserDefaults.standard.bool(forKey: "timerStarted") == false {
-//            timeInstance.lockscreenCount = 0
+        else {
+            self.timeInstance.logs += "application Did Enter Background but timer not started \n\n"
             timeInstance.putDownTime = 0
-            UserDefaults.standard.set(nil, forKey: "pickDuration")
-            UserDefaults.standard.set(nil, forKey: "putDownTime")
-            UserDefaults.standard.set(nil, forKey: "putDownTimeDisplay")
+            UserDefaults.standard.set(0, forKey: "putDownTime")
+            UserDefaults.standard.set(0, forKey: "putDownTimeDisplay")
             UserDefaults.standard.synchronize()
         }
-
+        self.timeInstance.logs += "application exiting Background \n\n"
     }
     
     func applicationWillEnterForeground(_ application: UIApplication) {
-        print("App Launched in Foreground")
-        // Called as part of the transition from the background to the active state; here you can undo many of the changes made on entering the background.
-//        if timeInstance.timerStarted == true && timeInstance.foregroundCount == 0{
-//            timeInstance.foregroundCount  += 1
-//            return
-//        }
+        print("Will Enter Foreground")
+        self.timeInstance.logs += "application Will Enter Foreground \n\n"
+        UNUserNotificationCenter.current().removeDeliveredNotifications(withIdentifiers: ["timerDone"])
+        self.timeInstance.hours = UserDefaults.standard.integer(forKey: "hours")
+        self.timeInstance.minutes = UserDefaults.standard.integer(forKey: "minutes")
+        self.timeInstance.seconds = UserDefaults.standard.integer(forKey: "seconds")
+        timeInstance.pickUpTime = Date().millisecondsSince1970
+        self.timeInstance.logs += "application Will Enter Foreground pickup time \(timeInstance.pickUpTime)\n\n"
         if UserDefaults.standard.bool(forKey: "timerStarted") == false{
             AppDelegate.pickUpNumber = 0
+            self.timeInstance.logs += "application Will Enter Foreground but timer not started\n\n"
             return
         }
-        timeInstance.pickUpTime = Date().millisecondsSince1970
-        timeInstance.currentPickDuration = timeInstance.pickUpTime - UserDefaults.standard.integer(forKey: "putDownTime")
-//        timeInstance.foregroundCount  += 1
-        print("Pick Duration: \(timeInstance.currentPickDuration)")
-//        print("\(timeInstance.foregroundCount) times app came in foreground")
-        timeInstance.allPickDurations = UserDefaults.standard.integer(forKey: "pickDuration")
-        timeInstance.allPickDurations += timeInstance.currentPickDuration
-        print("All Pick Durations: \(timeInstance.allPickDurations)")
-        UserDefaults.standard.set(timeInstance.allPickDurations, forKey: "pickDuration")
-        UserDefaults.standard.synchronize()
-        let time = Date().millisecondsSince1970
-        let date = NSDate(timeIntervalSince1970: Double(time) / 1000)
-        let formatter = DateFormatter()
-        formatter.timeZone = NSTimeZone(name: "UTC")! as TimeZone
-        formatter.dateFormat = "hh:mm:ss a"
-        print("Current Time: \(formatter.string(from: date as Date))")
-        let myTimings = Timings()
-        AppDelegate.pickUpNumber += 1
-        UserDefaults.standard.set(AppDelegate.pickUpNumber, forKey: "pickUpNumber")
-        UserDefaults.standard.synchronize()
-        myTimings.pickUpNumber = "Pickup \(UserDefaults.standard.integer(forKey: "pickUpNumber"))"
-        myTimings.pickUpTime = "\(formatter.string(from: date as Date))"
-        myTimings.dropDownTime = "\(UserDefaults.standard.string(forKey: "putDownTimeDisplay")!)"
-        let realm = try! Realm()
-        try! realm.write {
-            realm.add(myTimings)
+        
+        if timeInstance.screenLock == false{
+            self.timeInstance.logs += "application Will Enter Foreground screen NOT locked\n\n"
+            if timeInstance.pickUpTime >= UserDefaults.standard.integer(forKey: "timerShouldStopAtMilliSeconds"){
+                self.timeInstance.logs += "application Will Enter Foreground time exceeded lock\n\n"
+                if (UserDefaults.standard.integer(forKey: "timerShouldStopAtMilliSeconds") - UserDefaults.standard.integer(forKey: "putDownTime")) > 1000{
+                    
+                    timeInstance.currentPickDuration = UserDefaults.standard.integer(forKey: "timerShouldStopAtMilliSeconds") - UserDefaults.standard.integer(forKey: "putDownTime")
+                    timeInstance.pickUpTime = UserDefaults.standard.integer(forKey: "timerShouldStopAtMilliSeconds")
+                    print("time exceded pick count")
+                }
+                else{
+                    msToTime(duration: UserDefaults.standard.integer(forKey: "putDownTime"))
+                    print("time exceded pick not count")
+                    return
+                }
+            }
+            else{
+                if (timeInstance.pickUpTime - UserDefaults.standard.integer(forKey: "putDownTime")) > 1000{
+                    timeInstance.currentPickDuration = timeInstance.pickUpTime - UserDefaults.standard.integer(forKey: "putDownTime")
+                    print("time not exceded pick count")
+                }
+                else{
+                    msToTime(duration: timeInstance.pickUpTime - UserDefaults.standard.integer(forKey: "timerStartedTime"))
+                    print("time not exceded pick not count")
+                    return
+                }
+            }
+            timeInstance.allPickDurations = UserDefaults.standard.integer(forKey: "pickDuration")
+            timeInstance.allPickDurations += timeInstance.currentPickDuration
+            UserDefaults.standard.set(timeInstance.allPickDurations, forKey: "pickDuration")
+            let time = timeInstance.pickUpTime
+            let date = NSDate(timeIntervalSince1970: Double(time) / 1000)
+            let formatter = DateFormatter()
+            formatter.timeZone = NSTimeZone(name: UserDefaults.standard.string(forKey: "timeZone")!)! as TimeZone
+            formatter.dateFormat = "hh:mm:ss a"
+            let myTimings = Timings()
+            AppDelegate.pickUpNumber += 1
+            UserDefaults.standard.set(AppDelegate.pickUpNumber, forKey: "pickUpNumber")
+            UserDefaults.standard.synchronize()
+            myTimings.pickUpNumber = "Pickup \(UserDefaults.standard.integer(forKey: "pickUpNumber"))"
+            myTimings.pickUpTime = "\(formatter.string(from: date as Date))"
+            myTimings.dropDownTime = "\(UserDefaults.standard.string(forKey: "putDownTimeDisplay")!)"
+            print("About to write into Realm")
+            let realm = try! Realm()
+            try! realm.write {
+                print("writing into Realm: \(myTimings)")
+                realm.add(myTimings)
+            }
+            msToTime(duration: timeInstance.pickUpTime - UserDefaults.standard.integer(forKey: "timerStartedTime"))
+            print(self.timeInstance.pickUpTime - UserDefaults.standard.integer(forKey: "timerStartedTime"))
         }
-        msToTime(duration: timeInstance.currentPickDuration)
-//        print("Current Pick Duration: \(msToTime(duration: timeInstance.allPickDurations))")
+        else{
+            self.timeInstance.logs += "application Will Enter Foreground but screen was lock\n\n"
+            msToTime(duration: timeInstance.pickUpTime - UserDefaults.standard.integer(forKey: "timerStartedTime"))
+            print(self.timeInstance.pickUpTime - UserDefaults.standard.integer(forKey: "timerStartedTime"))
+        }
+        timeInstance.screenLock = false
+
         if UserDefaults.standard.bool(forKey: "timerStarted") == false {
-//            timeInstance.foregroundCount = 0
             timeInstance.pickUpTime = 0
             timeInstance.currentPickDuration = 0
             UserDefaults.standard.set(nil, forKey: "pickDuration")
@@ -190,51 +378,41 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             UserDefaults.standard.set(nil, forKey: "putDownTimeDisplay")
             UserDefaults.standard.synchronize()
         }
+        
     }
     
     func msToTime(duration: Int){
-        if timeInstance.currentSeconds + (duration/1000)%60 < 60{
-            timeInstance.currentSeconds += (duration/1000)%60
-        }
-        else {
-            timeInstance.currentSeconds += (duration/1000)%60 - 60
-            timeInstance.currentMinutes += 1
-        }
-        
-        if timeInstance.currentMinutes + (duration/(1000*60))%60 < 60{
-            timeInstance.currentMinutes += (duration/(1000*60))%60
-        }
-        else {
-            timeInstance.currentMinutes += (duration/(1000*60))%60 - 60
-            timeInstance.currentHours += 1
-        }
-        if timeInstance.currentHours + (duration/(1000*60*60))%24 < 24{
-            timeInstance.currentHours += (duration/(1000*60*60))%24
-        }
-        else{
-            timeInstance.currentSeconds = 24
-            timeInstance.currentMinutes = 60
-            timeInstance.currentHours = 60
-        }
-//        return "\(hour):\(minute):\(second)"
+        timeInstance.currentSeconds = (duration/1000)%60
+        timeInstance.currentMinutes = (duration/(1000*60))%60
+        timeInstance.currentHours = (duration/(1000*60*60))%24
+        print(self.timeInstance.currentHours, self.timeInstance.currentMinutes, self.timeInstance.currentSeconds)
     }
     
     func applicationDidBecomeActive(_ application: UIApplication) {
-        // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
+        print("Become Active is Called")
     }
     
     func applicationWillTerminate(_ application: UIApplication) {
-        // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
-        let time = Date().millisecondsSince1970
-        let date = NSDate(timeIntervalSince1970: Double(time) / 1000)
-        let formatter = DateFormatter()
-        formatter.timeZone = NSTimeZone(name: "UTC")! as TimeZone
-        formatter.dateFormat = "hh:mm:ss a"
-        print("Current Time: \(formatter.string(from: date as Date))")
-        UserDefaults.standard.set(formatter.string(from: date as Date), forKey: "putDownTimeDisplay")
-        UserDefaults.standard.set(Date().millisecondsSince1970, forKey: "putDownTime")
-        UserDefaults.standard.synchronize()
+        print("Will Terminate is Called")
+        print(UserDefaults.standard.integer(forKey: "pickDuration"))
+        let time = Date().millisecondsSince1970 + 5000
+        if UserDefaults.standard.bool(forKey: "timerStarted") == true {
+            let content = UNMutableNotificationContent()
+            content.title = "You've left Kapper!"
+            content.body = "Use this link to enter back in before your activity-clock starts counting!"
+            //        content.body = "Do you really know?"
+            //        content.badge = 1
+            let date = NSDate(timeIntervalSince1970: Double(time) / 1000)
+            let formatter = DateFormatter()
+            formatter.timeZone = NSTimeZone(name: UserDefaults.standard.string(forKey: "timeZone")!)! as TimeZone
+            formatter.dateFormat = "hh:mm:ss a"
+            UserDefaults.standard.set(formatter.string(from: date as Date), forKey: "putDownTimeDisplay")
+            UserDefaults.standard.set(time, forKey: "putDownTime")
+            UserDefaults.standard.synchronize()
+            let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 0.5, repeats: false)
+            let request = UNNotificationRequest(identifier: "timerDone", content: content, trigger: trigger)
+            UNUserNotificationCenter.current().add(request, withCompletionHandler: nil)
+        }
     }
     
 }
-

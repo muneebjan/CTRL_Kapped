@@ -8,11 +8,11 @@
 
 import UIKit
 import RealmSwift
+import AVFoundation
 
 class ViewController: UIViewController, UITextFieldDelegate {
     
     let timeInstance = TimeInfo.sharedInstance
-
     let mainContainerView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
@@ -20,19 +20,35 @@ class ViewController: UIViewController, UITextFieldDelegate {
         return view
     }()
     
+    let tutorialImageView: UIImageView = {
+        var bi = UIImageView()
+        let screenSize: CGRect = UIScreen.main.bounds
+        bi.translatesAutoresizingMaskIntoConstraints = false
+        bi.image = UIImage(named: "tutorialScreen.png")
+        return bi
+    }()
+    
+    @objc func handleTutorialImageGesture(){
+        UIView.animate(withDuration: 2, animations: {
+            self.tutorialImageView.alpha = 0.0
+        }) { (success) in
+            if success{
+                self.tutorialImageView.removeFromSuperview()
+            }
+        }
+    }
+
     let logoImageView: UIImageView = {
         var bi = UIImageView()
         let screenSize: CGRect = UIScreen.main.bounds
         bi.translatesAutoresizingMaskIntoConstraints = false
-        //        bi.frame = CGRect(x: 0, y: 0, width: screenSize.width, height: screenSize.height)
         bi.image = UIImage(named: "kapped.png")
-        //        bi.contentMode = .scaleAspectFit
         return bi
     }()
     
     let fieldsContainerView: UIView = {
         let view = UIView()
-        view.backgroundColor = UIColor(r: 207,g: 226,b: 243)
+        view.backgroundColor = UIColor(r: 201, g:218, b:248)
         view.translatesAutoresizingMaskIntoConstraints = false
         view.layer.cornerRadius = 40
         view.layer.borderWidth = 2
@@ -48,7 +64,6 @@ class ViewController: UIViewController, UITextFieldDelegate {
         let tf = UITextField()
         tf.font = .boldSystemFont(ofSize: 16)
         tf.placeholder = "Your Name"
-        //        tf.text = "Shami@hotmail.com"
         tf.autocorrectionType = .no
         tf.backgroundColor = .white
         tf.layer.borderWidth = 2
@@ -56,16 +71,14 @@ class ViewController: UIViewController, UITextFieldDelegate {
         tf.layer.borderColor = UIColor(r: 58, g: 58, b: 58).cgColor
         tf.layer.masksToBounds = false
         tf.clipsToBounds = true
-        //        tf.textColor = UIColor(r: 28, g:168, b:261)
         tf.translatesAutoresizingMaskIntoConstraints = false
         return tf
     }()
     
-    let gameNameTextField: UITextField = {
+    let sessionNameTextField: UITextField = {
         let tf = UITextField()
         tf.font = .boldSystemFont(ofSize: 16)
-        tf.placeholder = "Institution Name"
-        //        tf.text = "Shami@hotmail.com"
+        tf.placeholder = "Session ID"
         tf.autocorrectionType = .no
         tf.backgroundColor = .white
         tf.layer.borderWidth = 2
@@ -73,12 +86,12 @@ class ViewController: UIViewController, UITextFieldDelegate {
         tf.layer.borderColor = UIColor(r: 58, g: 58, b: 58).cgColor
         tf.layer.masksToBounds = false
         tf.clipsToBounds = true
-        //        tf.textColor = UIColor(r: 28, g:168, b:261)
         tf.translatesAutoresizingMaskIntoConstraints = false
         return tf
     }()
     
-    //TODO: DataPicker
+
+    
     lazy var timePicker: UIPickerView = {
         let tp = UIPickerView()
         tp.backgroundColor = .white
@@ -89,7 +102,6 @@ class ViewController: UIViewController, UITextFieldDelegate {
         tp.layer.shadowOffset = CGSize(width: 0, height: 5)
         tp.layer.shadowRadius = 2
         tp.layer.shadowOpacity = 0.5
-        //        tp.clipsToBounds = true
         tp.translatesAutoresizingMaskIntoConstraints = false
         return tp
     }()
@@ -102,13 +114,10 @@ class ViewController: UIViewController, UITextFieldDelegate {
         bi.frame = CGRect(x: 0, y: 0, width: 60, height: 60)
         bi.image = UIImage(named: "timer.png")
         bi.layer.cornerRadius = 60/2
-//        bi.clipsToBounds = true
-//        bi.layer.borderWidth = 1
         bi.layer.borderColor = UIColor(r: 142, g: 142, b: 142).cgColor
         bi.layer.shadowOffset = CGSize(width: 0, height: 7)
         bi.layer.shadowRadius = 2
         bi.layer.shadowOpacity = 0.5
-        //        bi.contentMode = .scaleAspectFit
         return bi
     }()
     
@@ -170,7 +179,7 @@ class ViewController: UIViewController, UITextFieldDelegate {
     
     lazy var clockInButton: UIButton = {
         let button = UIButton(type: .system)
-        button.backgroundColor = UIColor(r: 109, g:158, b:235)
+        button.backgroundColor = UIColor(r: 109,g: 158,b: 235)
         button.setTitle("Clock In", for: .normal)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setTitleColor(UIColor.white, for: .normal)
@@ -186,59 +195,29 @@ class ViewController: UIViewController, UITextFieldDelegate {
         return button
     }()
     
-    let visitWebsiteButton: UIButton = {
-        var button = UIButton()
-        let myUIImage = UIImage(named: "web.png")
-        button.setImage(myUIImage, for: .normal)
-        button.contentMode = .scaleAspectFit
-        button.addTarget(self, action: Selector(("handleVisitWebsiteButton")), for:.touchUpInside)
-        button.translatesAutoresizingMaskIntoConstraints = false
-        return button
-    }()
-    
-    @objc func handleVisitWebsiteButton(){
-        if let url = NSURL(string: "https://www.rehapp.io/kapped"){
-            UIApplication.shared.open(url as URL, options: [:], completionHandler: nil)
-        }
-    }
-    
     @objc func handleStartButton(){
-        if !(yourNameTextField.text?.isEmpty)! && !(gameNameTextField.text?.isEmpty)!{
-            if timeInstance.seconds == 0 && timeInstance.minutes == 0 && timeInstance.hours == 0{
-                ToastView.shared.short(self.view, txt_msg: "Enter time limit!")
+        if !(yourNameTextField.text?.isEmpty)! && !(sessionNameTextField.text?.isEmpty)!{
+            if (yourNameTextField.text?.count)! <= 15 && (sessionNameTextField.text?.count)! <= 15{
+                if timeInstance.seconds == 0 && timeInstance.minutes == 0 && timeInstance.hours == 0{
+                    ToastView.shared.short(self.view, txt_msg: "Enter time limit!")
+    //                return
+                }
+                else{
+                    setStartValues(arg: true, completion: { (success) -> Void in
+                        print("Second line of code executed")
+                        if success {
+                            let pickUpViewController = PickUpViewController()
+                            let aObjNavi = UINavigationController(rootViewController: pickUpViewController)
+                            let appDelegate: AppDelegate = (UIApplication.shared.delegate as? AppDelegate)!
+                            appDelegate.window?.rootViewController = aObjNavi
+                        } else {
+                            print("false")
+                        }
+                    })
+                }
             }
             else{
-                timeInstance.yourName = yourNameTextField.text!
-                timeInstance.gameName = gameNameTextField.text!
-                let gameStartTime = Date().millisecondsSince1970
-                timeInstance.gameStartTime = gameStartTime
-                let todaysDate:Date = Date()
-                let dateFormatter:DateFormatter = DateFormatter()
-                dateFormatter.dateFormat = "MM/dd/yyyy"
-                let todayString:String = dateFormatter.string(from: todaysDate)
-                UserDefaults.standard.set(2, forKey: "state")
-                UserDefaults.standard.set(todayString, forKey: "date")
-                print("PickUp View Controller Called")
-                let time = Date().millisecondsSince1970
-                let date = NSDate(timeIntervalSince1970: Double(time) / 1000)
-                let formatter = DateFormatter()
-                formatter.timeZone = NSTimeZone(name: "UTC")! as TimeZone
-                formatter.dateFormat = "hh:mm:ss a"
-                print("Current Time: \(formatter.string(from: date as Date))")
-                UserDefaults.standard.set(formatter.string(from: date as Date), forKey: "timerStartedOn")
-                UserDefaults.standard.set(true, forKey: "timerStarted")
-                UserDefaults.standard.set(Date().millisecondsSince1970, forKey: "timerStartedTime")
-                UserDefaults.standard.set(timeInstance.hours, forKey: "hours")
-                UserDefaults.standard.set(timeInstance.minutes, forKey: "minutes")
-                UserDefaults.standard.set(timeInstance.seconds, forKey: "seconds")
-                UserDefaults.standard.set(timeInstance.yourName, forKey: "yourName")
-                UserDefaults.standard.set(timeInstance.gameName, forKey: "gameName")
-                UserDefaults.standard.synchronize()
-                
-                let pickUpViewController = PickUpViewController()
-                let aObjNavi = UINavigationController(rootViewController: pickUpViewController)
-                let appDelegate: AppDelegate = (UIApplication.shared.delegate as? AppDelegate)!
-                appDelegate.window?.rootViewController = aObjNavi
+                 ToastView.shared.short(self.view, txt_msg: "Entered names are too long!")
             }
         }
         else {
@@ -246,9 +225,71 @@ class ViewController: UIViewController, UITextFieldDelegate {
         }
     }
     
+    func setStartValues(arg: Bool, completion: (Bool) -> ()){
+        timeInstance.yourName = yourNameTextField.text!
+        timeInstance.gameName = sessionNameTextField.text!
+        let gameStartTime = Date().millisecondsSince1970
+        timeInstance.gameStartTime = gameStartTime
+        let todaysDate:Date = Date()
+        let dateFormatter:DateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "MM/dd/yyyy"
+        let todayString:String = dateFormatter.string(from: todaysDate)
+        print("PickUp View Controller Called")
+        let time = gameStartTime
+        let date = NSDate(timeIntervalSince1970: Double(time) / 1000)
+        let formatter = DateFormatter()
+        formatter.timeZone = NSTimeZone(name: UserDefaults.standard.string(forKey: "timeZone")!)! as TimeZone
+        formatter.dateFormat = "hh:mm:ss a"
+        print("Current Time: \(formatter.string(from: date as Date))")
+        UserDefaults.standard.set(2, forKey: "state")
+        UserDefaults.standard.set(todayString, forKey: "date")
+        UserDefaults.standard.set(formatter.string(from: date as Date), forKey: "timerStartedOn")
+        UserDefaults.standard.set(true, forKey: "timerStarted")
+        UserDefaults.standard.set(time, forKey: "timerStartedTime")
+        UserDefaults.standard.set(self.timeInstance.hours, forKey: "hours")
+        UserDefaults.standard.set(self.timeInstance.minutes, forKey: "minutes")
+        UserDefaults.standard.set(self.timeInstance.seconds, forKey: "seconds")
+        UserDefaults.standard.set(self.timeInstance.yourName, forKey: "yourName")
+        UserDefaults.standard.set(self.timeInstance.gameName, forKey: "gameName")
+        UserDefaults.standard.synchronize()
+        
+        completion(true)
+    }
+    
+    let visitWebsiteButton: UIButton = {
+        var button = UIButton()
+        let buttonImage = UIImage(named: "web.png")
+        button.setImage(buttonImage, for: .normal)
+        button.addTarget(self, action: #selector(handleVisitWebsiteButton), for:.touchUpInside)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
+    }()
+    
+    @objc func handleVisitWebsiteButton(){
+        print("Inside 1")
+        UIApplication.shared.open(NSURL(string: "https://www.rehapp.io/kapper")! as URL)
+    }
+    
+    let cameraButton: UIButton = {
+        var button = UIButton()
+        let buttonImage = UIImage(named: "camera.png")
+        button.setImage(buttonImage, for: .normal)
+        button.contentMode = .scaleAspectFit
+        button.addTarget(self, action: #selector(handleCameraButton), for:.touchUpInside)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
+    }()
+    
+    @objc func handleCameraButton(){
+        let cameraViewController = CameraViewController()
+        let aObjNavi = UINavigationController(rootViewController: cameraViewController)
+        let appDelegate: AppDelegate = (UIApplication.shared.delegate as? AppDelegate)!
+        appDelegate.window?.rootViewController = aObjNavi
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-        print(UserDefaults.standard.integer(forKey: "state"))
+        print("ViewController - ViewDidLoad - state = \(UserDefaults.standard.integer(forKey: "state"))")
         UserDefaults.standard.set(0, forKey: "pickDuration")
         UserDefaults.standard.set(0, forKey: "putDownTime")
         UserDefaults.standard.set(1, forKey: "state")
@@ -256,8 +297,6 @@ class ViewController: UIViewController, UITextFieldDelegate {
         UserDefaults.standard.set(0, forKey: "currentMinutes")
         UserDefaults.standard.set(0, forKey: "currentSeconds")
         UserDefaults.standard.set(0, forKey: "hours")
-        UserDefaults.standard.set(0, forKey: "yourName")
-        UserDefaults.standard.set(0, forKey: "gameName")
         UserDefaults.standard.set(0, forKey: "timerStartedTime")
         UserDefaults.standard.set(0, forKey: "timerShouldStopAt")
         UserDefaults.standard.set(0, forKey: "putDownTimeDisplay")
@@ -269,11 +308,16 @@ class ViewController: UIViewController, UITextFieldDelegate {
         UserDefaults.standard.set(nil, forKey: "timerStartedOn")
         UserDefaults.standard.set(0, forKey: "timerStoppedOn")
         UserDefaults.standard.synchronize()
-        
+        let tabGesture = UITapGestureRecognizer(target: self, action: #selector(handleTutorialImageGesture))
+        tutorialImageView.isUserInteractionEnabled = true
+        tutorialImageView.addGestureRecognizer(tabGesture)
         let path = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0] as String
         let myurl = NSURL(fileURLWithPath: path)
-        if let pathComponent = myurl.appendingPathComponent("file.pdf") {
+        let yourName = UserDefaults.standard.string(forKey: "yourName") ?? "0"
+        let gameName = UserDefaults.standard.string(forKey: "gameName") ?? "0"
+        if let pathComponent = myurl.appendingPathComponent("\(yourName)_\(gameName)_Kapper.pdf") {
             let filePath = pathComponent.path
+            print(pathComponent.path)
             do {
                 let fileManager = FileManager.default
                 if fileManager.fileExists(atPath: filePath) {
@@ -281,12 +325,12 @@ class ViewController: UIViewController, UITextFieldDelegate {
                 } else {
                     print("File does not exist")
                 }
-                
             }
             catch let error as NSError {
                 print("An error took place: \(error)")
             }
-        } else {
+        }
+        else {
             print("FILE PATH NOT AVAILABLE")
         }
         
@@ -312,19 +356,27 @@ class ViewController: UIViewController, UITextFieldDelegate {
         
         timeInstance.yourName = ""
         timeInstance.gameName = ""
-        
-//        timeInstance.lockscreenCount = 0
-//        timeInstance.foregroundCount = 0
         timeInstance.state = 0
         
         view.backgroundColor = .white
         timePicker.dataSource = self
         timePicker.delegate = self
         yourNameTextField.delegate = self
-        gameNameTextField.delegate = self
-        //        setupNavigationBar()
+        sessionNameTextField.delegate = self
         setupKeyboard()
         setupViews()
+        if timeInstance.isTutorialScreenLoadable == false{
+            self.tutorialImageView.removeFromSuperview()
+            print("Loadable is false")
+        }
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        print("will appear")
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        print("did appear")
     }
 
     func setupKeyboard(){
@@ -346,9 +398,6 @@ class ViewController: UIViewController, UITextFieldDelegate {
     }
     
     func keyboardWillChange(notification: Notification){
-        //        guard let keyboardRect = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue else {
-        //            return
-        //        }
         if notification.name.rawValue == "UIKeyboardWillChangeFrameNotification" || notification.name.rawValue == "UIKeyboardWillShowNotification"{
             view.frame.origin.y = -100
         }
@@ -358,7 +407,6 @@ class ViewController: UIViewController, UITextFieldDelegate {
     }
     
     func setupViews(){
-        
         view.addSubview(mainContainerView)
         mainContainerView.heightAnchor.constraint(equalToConstant: 667.0).isActive = true
         mainContainerView.widthAnchor.constraint(equalToConstant: 375.0).isActive = true
@@ -383,14 +431,14 @@ class ViewController: UIViewController, UITextFieldDelegate {
         yourNameTextField.widthAnchor.constraint(equalTo: fieldsContainerView.widthAnchor, constant: -80).isActive = true
         yourNameTextField.heightAnchor.constraint(equalToConstant: 50).isActive = true
         
-        fieldsContainerView.addSubview(gameNameTextField)
-        gameNameTextField.topAnchor.constraint(equalTo: yourNameTextField.bottomAnchor, constant: 10).isActive = true
-        gameNameTextField.centerXAnchor.constraint(equalTo: fieldsContainerView.centerXAnchor).isActive = true
-        gameNameTextField.widthAnchor.constraint(equalTo: fieldsContainerView.widthAnchor, constant: -80).isActive = true
-        gameNameTextField.heightAnchor.constraint(equalToConstant: 50).isActive = true
+        fieldsContainerView.addSubview(sessionNameTextField)
+        sessionNameTextField.topAnchor.constraint(equalTo: yourNameTextField.bottomAnchor, constant: 10).isActive = true
+        sessionNameTextField.centerXAnchor.constraint(equalTo: fieldsContainerView.centerXAnchor).isActive = true
+        sessionNameTextField.widthAnchor.constraint(equalTo: fieldsContainerView.widthAnchor, constant: -80).isActive = true
+        sessionNameTextField.heightAnchor.constraint(equalToConstant: 50).isActive = true
         
         fieldsContainerView.addSubview(timePicker)
-        timePicker.topAnchor.constraint(equalTo: gameNameTextField.bottomAnchor, constant: 20).isActive = true
+        timePicker.topAnchor.constraint(equalTo: sessionNameTextField.bottomAnchor, constant: 20).isActive = true
         timePicker.centerXAnchor.constraint(equalTo: fieldsContainerView.centerXAnchor, constant: 20).isActive = true
         timePicker.heightAnchor.constraint(equalToConstant: 40).isActive = true
         timePicker.widthAnchor.constraint(equalToConstant: 160).isActive = true
@@ -425,7 +473,6 @@ class ViewController: UIViewController, UITextFieldDelegate {
         secondsLabel.trailingAnchor.constraint(equalTo: timePicker.trailingAnchor, constant: -10).isActive = true
         secondsLabel.topAnchor.constraint(equalTo: timePicker.bottomAnchor, constant: 10).isActive = true
         
-        
         mainContainerView.addSubview(clockInButton)
         clockInButton.topAnchor.constraint(equalTo: fieldsContainerView.bottomAnchor, constant: 50).isActive = true
         clockInButton.centerXAnchor.constraint(equalTo: mainContainerView.centerXAnchor).isActive = true
@@ -437,6 +484,19 @@ class ViewController: UIViewController, UITextFieldDelegate {
         visitWebsiteButton.rightAnchor.constraint(equalTo: mainContainerView.rightAnchor, constant: -20).isActive = true
         visitWebsiteButton.widthAnchor.constraint(equalToConstant: 30).isActive = true
         visitWebsiteButton.heightAnchor.constraint(equalToConstant: 30).isActive = true
+        
+        mainContainerView.addSubview(cameraButton)
+        cameraButton.bottomAnchor.constraint(equalTo: mainContainerView.bottomAnchor, constant: -20).isActive = true
+        cameraButton.leftAnchor.constraint(equalTo: mainContainerView.leftAnchor, constant: 20).isActive = true
+        cameraButton.widthAnchor.constraint(equalToConstant: 40).isActive = true
+        cameraButton.heightAnchor.constraint(equalToConstant: 40).isActive = true
+        
+        view.addSubview(tutorialImageView)
+        tutorialImageView.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
+        tutorialImageView.centerYAnchor.constraint(equalTo: view.centerYAnchor).isActive = true
+        tutorialImageView.widthAnchor.constraint(equalToConstant: 375.0).isActive = true
+        tutorialImageView.heightAnchor.constraint(equalToConstant: 667.0).isActive = true
+        
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -485,7 +545,7 @@ extension ViewController:UIPickerViewDelegate,UIPickerViewDataSource {
     func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
         switch component {
         case 0:
-            return 25
+            return 24
         case 1,2:
             return 60
             
