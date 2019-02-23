@@ -23,19 +23,14 @@ class ViewController: UIViewController, UITextFieldDelegate {
     let tutorialImageView: UIImageView = {
         var bi = UIImageView()
         let screenSize: CGRect = UIScreen.main.bounds
+        bi.alpha = 0.8
         bi.translatesAutoresizingMaskIntoConstraints = false
         bi.image = UIImage(named: "tutorialScreen.png")
         return bi
     }()
     
     @objc func handleTutorialImageGesture(){
-        UIView.animate(withDuration: 2, animations: {
-            self.tutorialImageView.alpha = 0.0
-        }) { (success) in
-            if success{
-                self.tutorialImageView.removeFromSuperview()
-            }
-        }
+        self.tutorialImageView.removeFromSuperview()
     }
 
     let logoImageView: UIImageView = {
@@ -268,7 +263,7 @@ class ViewController: UIViewController, UITextFieldDelegate {
     
     @objc func handleVisitWebsiteButton(){
         print("Inside 1")
-        UIApplication.shared.open(NSURL(string: "https://www.rehapp.io/kapper")! as URL)
+        UIApplication.shared.open(NSURL(string: "https://www.kappapp.com")! as URL)
     }
     
     let cameraButton: UIButton = {

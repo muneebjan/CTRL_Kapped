@@ -38,12 +38,18 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 //        timeInstance.currentTimeZone =  String(TimeZone.current.identifier)
         window = UIWindow(frame: UIScreen.main.bounds)
         window?.makeKeyAndVisible()
+        UINavigationBar.appearance().titleTextAttributes = [NSAttributedString.Key.foregroundColor: UIColor.white]
+        UINavigationBar.appearance().setBackgroundImage(UIImage(), for: .default)
+        UINavigationBar.appearance().shadowImage = UIImage()
+        UINavigationBar.appearance().backgroundColor = .clear
+        UINavigationBar.appearance().isTranslucent = true
         let formatter = DateFormatter()
         formatter.timeZone = NSTimeZone(name: UserDefaults.standard.string(forKey: "timeZone")!)! as TimeZone
         formatter.dateFormat = "hh:mm:ss a"
         self.timeInstance.hours = UserDefaults.standard.integer(forKey: "hours")
         self.timeInstance.minutes = UserDefaults.standard.integer(forKey: "minutes")
         self.timeInstance.seconds = UserDefaults.standard.integer(forKey: "seconds")
+        self.timeInstance.logs = UserDefaults.standard.string(forKey: "logs")!
         self.timeInstance.logs += "didFinishLaunchingWithOptions \n\n"
         if UserDefaults.standard.integer(forKey: "state") == 1 || UserDefaults.standard.integer(forKey: "state") == 0{
             AppDelegate.pickUpNumber = 0
@@ -69,6 +75,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                         self.timeInstance.currentMinutes = UserDefaults.standard.integer(forKey: "currentMinutes")
                         self.timeInstance.currentHours = UserDefaults.standard.integer(forKey: "currentHours")
                         self.msToTime(duration: UserDefaults.standard.integer(forKey: "timerShouldStopAtMilliSeconds"))
+                        if UserDefaults.standard.integer(forKey: "putDownTime")  == 0{
+                            window?.rootViewController = UINavigationController(rootViewController: PickUpViewController())
+                            return true
+                        }
                         print(self.timeInstance.pickUpTime - UserDefaults.standard.integer(forKey: "timerStartedTime"))
                         self.timeInstance.allPickDurations = UserDefaults.standard.integer(forKey: "pickDuration")
                         self.timeInstance.allPickDurations += self.timeInstance.currentPickDuration
@@ -111,6 +121,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                         self.timeInstance.currentMinutes = UserDefaults.standard.integer(forKey: "currentMinutes")
                         self.timeInstance.currentHours = UserDefaults.standard.integer(forKey: "currentHours")
                         self.msToTime(duration: (time - UserDefaults.standard.integer(forKey: "timerStartedTime")))
+                        if UserDefaults.standard.integer(forKey: "putDownTime")  == 0{
+                            window?.rootViewController = UINavigationController(rootViewController: PickUpViewController())
+                            return true
+                        }
                         print(self.timeInstance.pickUpTime - UserDefaults.standard.integer(forKey: "timerStartedTime"))
                         self.timeInstance.allPickDurations = UserDefaults.standard.integer(forKey: "pickDuration")
                         self.timeInstance.allPickDurations += self.timeInstance.currentPickDuration
@@ -156,6 +170,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                         self.timeInstance.currentMinutes = UserDefaults.standard.integer(forKey: "currentMinutes")
                         self.timeInstance.currentHours = UserDefaults.standard.integer(forKey: "currentHours")
                         self.msToTime(duration: UserDefaults.standard.integer(forKey: "putDownTime"))
+                        if UserDefaults.standard.integer(forKey: "putDownTime")  == 0{
+                            window?.rootViewController = UINavigationController(rootViewController: PickUpViewController())
+                            return true
+                        }
                         print(self.timeInstance.pickUpTime - UserDefaults.standard.integer(forKey: "timerStartedTime"))
                         self.timeInstance.allPickDurations = UserDefaults.standard.integer(forKey: "pickDuration")
                         self.timeInstance.allPickDurations += self.timeInstance.currentPickDuration
@@ -195,6 +213,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                         self.timeInstance.currentMinutes = UserDefaults.standard.integer(forKey: "currentMinutes")
                         self.timeInstance.currentHours = UserDefaults.standard.integer(forKey: "currentHours")
                         self.msToTime(duration: self.timeInstance.pickUpTime - UserDefaults.standard.integer(forKey: "timerStartedTime"))
+                        if UserDefaults.standard.integer(forKey: "putDownTime")  == 0{
+                            window?.rootViewController = UINavigationController(rootViewController: PickUpViewController())
+                            return true
+                        }
                         print(self.timeInstance.pickUpTime - UserDefaults.standard.integer(forKey: "timerStartedTime"))
                         self.timeInstance.allPickDurations = UserDefaults.standard.integer(forKey: "pickDuration")
                         self.timeInstance.allPickDurations += self.timeInstance.currentPickDuration
@@ -242,12 +264,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             timeInstance.seconds = UserDefaults.standard.integer(forKey: "seconds")
             window?.rootViewController = UINavigationController(rootViewController: ReceiptViewController())
         }
-
-        UINavigationBar.appearance().titleTextAttributes = [NSAttributedString.Key.foregroundColor: UIColor.white]
-        UINavigationBar.appearance().setBackgroundImage(UIImage(), for: .default)
-        UINavigationBar.appearance().shadowImage = UIImage()
-        UINavigationBar.appearance().backgroundColor = .clear
-        UINavigationBar.appearance().isTranslucent = true
         return true
     }
     
@@ -268,6 +284,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         if UserDefaults.standard.bool(forKey: "timerStarted") == true {
             self.timeInstance.logs += "applicationDidEnterBackground timer was started\n"
             if(UIScreen.main.brightness > 0){
+//                print("true >> \(DidUserPressLockButton())")
                 timeInstance.screenLock = false
                 UserDefaults.standard.set(time, forKey: "putDownTime")
                 UserDefaults.standard.set("\(formatter.string(from: date as Date))", forKey: "putDownTimeDisplay")
@@ -277,14 +294,17 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 self.timeInstance.logs += "applicationDidEnterBackground userdefaults \(UserDefaults.standard.integer(forKey: "putDownTime"))\n"
                 self.timeInstance.logs += "applicationDidEnterBackground display time \(String(describing: UserDefaults.standard.string(forKey: "putDownTimeDisplay")))\n"
                 let content = UNMutableNotificationContent()
-                content.title = "You've left Kapper!"
-                content.body = "Use this link to enter back in before your activity-clock starts counting!"
+                content.title = "YOU'VE LEFT KAPPER!"
+                content.body = "Follow this notification back inside app before your activity-clock starts counting!"
                 let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 0.5, repeats: false)
                 let request = UNNotificationRequest(identifier: "timerDone", content: content, trigger: trigger)
                 UNUserNotificationCenter.current().add(request, withCompletionHandler: nil)
                 print("\(timeInstance.screenLock) times screen was background")
             }
             else{
+//                print("false >> \(DidUserPressLockButton())")
+                UserDefaults.standard.set(0, forKey: "putDownTime")
+                UserDefaults.standard.synchronize()
                 self.timeInstance.logs += "applicationDidEnterBackground with screen lock \n"
                 timeInstance.screenLock = true
                 print("\(timeInstance.screenLock) times screen was lock screen")
@@ -302,6 +322,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         UserDefaults.standard.set(self.timeInstance.logs, forKey: "logs")
         UserDefaults.standard.synchronize()
     }
+    
+//    func DidUserPressLockButton() -> Bool {
+//        let oldBrightness = UIScreen.main.brightness
+//        UIScreen.main.brightness = oldBrightness + (oldBrightness <= 0.01 ? (0.01) : (-0.01))
+//        print("old brightness \(oldBrightness)")
+//        print("UIScreen brightness \(UIScreen.main.brightness)")
+//        return oldBrightness != UIScreen.main.brightness
+//    }
     
     func applicationWillEnterForeground(_ application: UIApplication) {
         print("Will Enter Foreground")
@@ -415,10 +443,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         print(UserDefaults.standard.integer(forKey: "pickDuration"))
         let time = Date().millisecondsSince1970 + 5000
         if UserDefaults.standard.bool(forKey: "timerStarted") == true {
+            if timeInstance.screenLock == true{
+                UserDefaults.standard.set(0, forKey: "putDownTime")
+                UserDefaults.standard.synchronize()
+                return
+            }
             self.timeInstance.logs += "applicationWillTerminate timer started\n"
             let content = UNMutableNotificationContent()
-            content.title = "You've left Kapper!"
-            content.body = "Use this link to enter back in before your activity-clock starts counting!"
+            content.title = "YOU'VE LEFT KAPPER!"
+            content.body = "Follow this notification back inside app before your activity-clock starts counting!"
             //        content.body = "Do you really know?"
             //        content.badge = 1
             let date = NSDate(timeIntervalSince1970: Double(time) / 1000)
@@ -427,6 +460,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             formatter.dateFormat = "hh:mm:ss a"
             UserDefaults.standard.set(formatter.string(from: date as Date), forKey: "putDownTimeDisplay")
             UserDefaults.standard.set(time, forKey: "putDownTime")
+            UserDefaults.standard.set(self.timeInstance.logs, forKey: "logs")
             UserDefaults.standard.synchronize()
             self.timeInstance.logs += "applicationWillTerminate putDownTime \(UserDefaults.standard.integer(forKey: "putDownTime"))\n"
             self.timeInstance.logs += "applicationWillTerminate putDownTime \(String(describing: UserDefaults.standard.string(forKey: "putDownTimeDisplay")))\n"

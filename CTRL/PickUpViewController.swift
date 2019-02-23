@@ -103,6 +103,18 @@ class PickUpViewController: UIViewController {
         timeSeparator2.heightAnchor.constraint(equalToConstant: 20).isActive = true
         timeSeparator2.leftAnchor.constraint(equalTo: timeSeparator1.rightAnchor, constant: 50).isActive = true
         
+        fieldsContainerView.addSubview(hLabel)
+        hLabel.leftAnchor.constraint(equalTo: timePicker.leftAnchor, constant: 28).isActive = true
+        hLabel.topAnchor.constraint(equalTo: timePicker.bottomAnchor, constant: 10).isActive = true
+        
+        fieldsContainerView.addSubview(mLabel)
+        mLabel.centerXAnchor.constraint(equalTo: timePicker.centerXAnchor, constant: 5).isActive = true
+        mLabel.topAnchor.constraint(equalTo: timePicker.bottomAnchor, constant: 10).isActive = true
+        
+        fieldsContainerView.addSubview(sLabel)
+        sLabel.rightAnchor.constraint(equalTo: timePicker.rightAnchor, constant: -20).isActive = true
+        sLabel.topAnchor.constraint(equalTo: timePicker.bottomAnchor, constant: 10).isActive = true
+        
         fieldsContainerView.addSubview(continueButton)
         continueButton.leftAnchor.constraint(equalTo: fieldsContainerView.leftAnchor).isActive = true
         continueButton.bottomAnchor.constraint(equalTo: fieldsContainerView.bottomAnchor).isActive = true
@@ -335,6 +347,48 @@ class PickUpViewController: UIViewController {
         view.backgroundColor = .black
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
+    }()
+    
+    let hLabel: UILabel = {
+        let label = UILabel()
+        let centeredParagraphStyle = NSMutableParagraphStyle()
+        centeredParagraphStyle.alignment = .center
+        label.attributedText = NSAttributedString(string: "H",
+                                                  attributes: [NSAttributedString.Key.foregroundColor: UIColor.white, NSAttributedString.Key.paragraphStyle: centeredParagraphStyle])
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.textColor = .black
+        label.sizeToFit()
+        label.textAlignment = .center
+        label.font = UIFont.boldSystemFont(ofSize: 16)
+        return label
+    }()
+    
+    let mLabel: UILabel = {
+        let label = UILabel()
+        let centeredParagraphStyle = NSMutableParagraphStyle()
+        centeredParagraphStyle.alignment = .center
+        label.attributedText = NSAttributedString(string: "M",
+                                                  attributes: [NSAttributedString.Key.foregroundColor: UIColor.white, NSAttributedString.Key.paragraphStyle: centeredParagraphStyle])
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.textColor = .black
+        label.sizeToFit()
+        label.textAlignment = .center
+        label.font = UIFont.boldSystemFont(ofSize: 16)
+        return label
+    }()
+    
+    let sLabel: UILabel = {
+        let label = UILabel()
+        let centeredParagraphStyle = NSMutableParagraphStyle()
+        centeredParagraphStyle.alignment = .center
+        label.attributedText = NSAttributedString(string: "S",
+                                                  attributes: [NSAttributedString.Key.foregroundColor: UIColor.white, NSAttributedString.Key.paragraphStyle: centeredParagraphStyle])
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.textColor = .black
+        label.sizeToFit()
+        label.textAlignment = .center
+        label.font = UIFont.boldSystemFont(ofSize: 16)
+        return label
     }()
     
     let buttonsContainerView: UIView = {

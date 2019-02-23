@@ -157,7 +157,7 @@ class ReceiptViewController: UIViewController, UICollectionViewDelegate, UIColle
         label.layer.borderColor = UIColor.lightGray.cgColor
         label.font = UIFont.systemFont(ofSize: 14)
         label.textAlignment = .center
-        label.backgroundColor = UIColor(r: 252, g: 227, b: 206)
+        label.backgroundColor = UIColor(r: 217, g: 217, b: 217)
         label.sizeToFit()
         return label
     }()
@@ -173,7 +173,7 @@ class ReceiptViewController: UIViewController, UICollectionViewDelegate, UIColle
         label.layer.borderWidth = 0.5
         label.layer.borderColor = UIColor.lightGray.cgColor
         label.font = UIFont.systemFont(ofSize: 16)
-        label.backgroundColor = UIColor(r: 252, g: 227, b: 206)
+        label.backgroundColor = UIColor(r: 217, g: 217, b: 217)
         label.textAlignment = .right
         label.sizeToFit()
         return label
@@ -183,7 +183,7 @@ class ReceiptViewController: UIViewController, UICollectionViewDelegate, UIColle
         let label = UILabel()
         let centeredParagraphStyle = NSMutableParagraphStyle()
         centeredParagraphStyle.alignment = .center
-        label.attributedText = NSAttributedString(string: "CLOCK IN:",
+        label.attributedText = NSAttributedString(string: "CLOCKED IN:",
                                                   attributes: [NSAttributedString.Key.foregroundColor: UIColor.white, NSAttributedString.Key.paragraphStyle: centeredParagraphStyle])
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = .black
@@ -191,7 +191,7 @@ class ReceiptViewController: UIViewController, UICollectionViewDelegate, UIColle
         label.layer.borderColor = UIColor.lightGray.cgColor
         label.font = UIFont.systemFont(ofSize: 16)
         label.textAlignment = .right
-        label.backgroundColor = UIColor(r: 219, g: 231, b: 215)
+        label.backgroundColor = UIColor(r: 255, g: 242, b: 204)
         label.sizeToFit()
         return label
     }()
@@ -205,7 +205,7 @@ class ReceiptViewController: UIViewController, UICollectionViewDelegate, UIColle
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = .black
         label.layer.borderWidth = 0.5
-        label.backgroundColor = UIColor(r: 219, g: 231, b: 215)
+        label.backgroundColor = UIColor(r: 255, g: 242, b: 204)
         label.layer.borderColor = UIColor.lightGray.cgColor
         label.font = UIFont.systemFont(ofSize: 16)
         label.textAlignment = .center
@@ -221,7 +221,7 @@ class ReceiptViewController: UIViewController, UICollectionViewDelegate, UIColle
                                                   attributes: [NSAttributedString.Key.foregroundColor: UIColor.white, NSAttributedString.Key.paragraphStyle: centeredParagraphStyle])
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = .black
-        label.backgroundColor = UIColor(r: 255, g: 243, b: 203)
+        label.backgroundColor = UIColor(r: 244, g: 204, b: 204)
         label.layer.borderWidth = 0.5
         label.layer.borderColor = UIColor.lightGray.cgColor
         label.font = UIFont.systemFont(ofSize: 16)
@@ -239,7 +239,7 @@ class ReceiptViewController: UIViewController, UICollectionViewDelegate, UIColle
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = .black
         label.layer.borderWidth = 0.5
-        label.backgroundColor = UIColor(r: 255, g: 243, b: 203)
+        label.backgroundColor = UIColor(r: 244, g: 204, b: 204)
         label.layer.borderColor = UIColor.lightGray.cgColor
         label.font = UIFont.systemFont(ofSize: 16)
         label.textAlignment = .right
@@ -256,7 +256,7 @@ class ReceiptViewController: UIViewController, UICollectionViewDelegate, UIColle
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = .black
         label.layer.borderWidth = 0.5
-        label.backgroundColor = UIColor(r: 255, g: 243, b: 203)
+        label.backgroundColor = UIColor(r: 244, g: 204, b: 204)
         label.layer.borderColor = UIColor.lightGray.cgColor
         label.font = UIFont.systemFont(ofSize: 16)
         label.textAlignment = .left
@@ -268,12 +268,12 @@ class ReceiptViewController: UIViewController, UICollectionViewDelegate, UIColle
         let label = UILabel()
         let centeredParagraphStyle = NSMutableParagraphStyle()
         centeredParagraphStyle.alignment = .center
-        label.attributedText = NSAttributedString(string: "WORK TIME:",
+        label.attributedText = NSAttributedString(string: "KAPPER TIME:",
                                                   attributes: [NSAttributedString.Key.foregroundColor: UIColor.white, NSAttributedString.Key.paragraphStyle: centeredParagraphStyle])
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = .black
         label.layer.borderWidth = 0.5
-        label.backgroundColor = UIColor(r: 252, g: 227, b: 206)
+        label.backgroundColor = UIColor(r: 217, g: 234, b: 211)
         label.layer.borderColor = UIColor.lightGray.cgColor
         label.font = UIFont.systemFont(ofSize: 16)
         label.textAlignment = .right
@@ -293,7 +293,7 @@ class ReceiptViewController: UIViewController, UICollectionViewDelegate, UIColle
         label.backgroundColor = UIColor(r: 254, g: 241, b: 210)
         label.layer.borderColor = UIColor.lightGray.cgColor
         label.font = UIFont.systemFont(ofSize: 16)
-        label.backgroundColor = UIColor(r: 252, g: 227, b: 206)
+        label.backgroundColor = UIColor(r: 217, g: 234, b: 211)
         label.textAlignment = .right
         label.sizeToFit()
         return label
@@ -308,7 +308,7 @@ class ReceiptViewController: UIViewController, UICollectionViewDelegate, UIColle
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = .black
         label.layer.borderWidth = 0.5
-        label.backgroundColor = UIColor(r: 252, g: 227, b: 206)
+        label.backgroundColor = UIColor(r: 217, g: 234, b: 211)
         label.layer.borderColor = UIColor.lightGray.cgColor
         label.font = UIFont.systemFont(ofSize: 16)
         label.textAlignment = .left
@@ -327,7 +327,7 @@ class ReceiptViewController: UIViewController, UICollectionViewDelegate, UIColle
         label.layer.borderWidth = 0.5
         label.layer.borderColor = UIColor.lightGray.cgColor
         label.font = UIFont.systemFont(ofSize: 16)
-        label.backgroundColor = UIColor(r: 240, g: 204, b: 205)
+        label.backgroundColor = UIColor(r: 255, g: 242, b: 204)
         label.textAlignment = .right
         label.sizeToFit()
         return label
@@ -342,7 +342,7 @@ class ReceiptViewController: UIViewController, UICollectionViewDelegate, UIColle
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = .black
         label.layer.borderWidth = 0.5
-        label.backgroundColor = UIColor(r: 240, g: 204, b: 205)
+        label.backgroundColor = UIColor(r:  255, g: 242, b: 204)
         label.layer.borderColor = UIColor.lightGray.cgColor
         label.font = UIFont.systemFont(ofSize: 16)
         label.textAlignment = .right
@@ -493,8 +493,6 @@ class ReceiptViewController: UIViewController, UICollectionViewDelegate, UIColle
         return button
     }()
     
-//    let alert = UIAlertController(title: "Warning!", message: "If you continue, all information will be lost; text/email to save receipt!", preferredStyle: UIAlertController.Style.alert)
-    
     @objc func handleExitButton(){
         self.timeInstance.logs = """
         """
@@ -505,8 +503,6 @@ class ReceiptViewController: UIViewController, UICollectionViewDelegate, UIColle
             ])
         let uiAlert = UIAlertController(title: "", message: "If you continue, all information will be lost: text/email to save receipt!", preferredStyle: UIAlertController.Style.alert)
         uiAlert.setValue(attributedString, forKey: "attributedTitle")
-//        self.present(uiAlert, animated: true, completion: nil)
-        
         uiAlert.addAction(UIAlertAction(title: "Continue", style: .default, handler: { action in
             self.deinitializeValues(arg: true, completion: { (success) -> Void in
                 if success {
@@ -518,9 +514,7 @@ class ReceiptViewController: UIViewController, UICollectionViewDelegate, UIColle
                     print("false")
                 }
             })
-
         }))
-        
         uiAlert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: { action in
             print("Click of cancel button")
         }))
