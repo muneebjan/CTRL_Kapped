@@ -49,7 +49,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         self.timeInstance.hours = UserDefaults.standard.integer(forKey: "hours")
         self.timeInstance.minutes = UserDefaults.standard.integer(forKey: "minutes")
         self.timeInstance.seconds = UserDefaults.standard.integer(forKey: "seconds")
-        self.timeInstance.logs = UserDefaults.standard.string(forKey: "logs")!
+        self.timeInstance.logs = UserDefaults.standard.string(forKey: "logs") ?? " "
         self.timeInstance.logs += "didFinishLaunchingWithOptions \n\n"
         if UserDefaults.standard.integer(forKey: "state") == 1 || UserDefaults.standard.integer(forKey: "state") == 0{
             AppDelegate.pickUpNumber = 0
