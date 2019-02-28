@@ -61,6 +61,7 @@ class ViewController: UIViewController, UITextFieldDelegate {
         tf.placeholder = "Your Name"
         tf.autocorrectionType = .no
         tf.backgroundColor = .white
+        tf.keyboardType = .asciiCapable
         tf.layer.borderWidth = 2
         tf.textAlignment = .center
         tf.layer.borderColor = UIColor(r: 58, g: 58, b: 58).cgColor
@@ -77,6 +78,7 @@ class ViewController: UIViewController, UITextFieldDelegate {
         tf.autocorrectionType = .no
         tf.backgroundColor = .white
         tf.layer.borderWidth = 2
+        tf.keyboardType = .asciiCapable
         tf.textAlignment = .center
         tf.layer.borderColor = UIColor(r: 58, g: 58, b: 58).cgColor
         tf.layer.masksToBounds = false
@@ -84,8 +86,6 @@ class ViewController: UIViewController, UITextFieldDelegate {
         tf.translatesAutoresizingMaskIntoConstraints = false
         return tf
     }()
-    
-
     
     lazy var timePicker: UIPickerView = {
         let tp = UIPickerView()
@@ -590,5 +590,11 @@ extension Date {
         let formatter = DateFormatter()
         formatter.dateFormat = format
         return formatter.string(from: self)
+    }
+}
+
+extension UITextField {
+    open override func canPerformAction(_ action: Selector, withSender sender: Any?) -> Bool {
+        return false
     }
 }

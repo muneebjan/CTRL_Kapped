@@ -755,7 +755,7 @@ class ReceiptViewController: UIViewController, UICollectionViewDelegate, UIColle
     var dataToQr = ""
     var pdfDataAdder: String = ""
     func createPDF() {
-        html = "<div style='display: flex; justify-content: center;'><table width='50%' cellspacing='1' cellpadding='0' border='0' bgcolor='#999999' align='center'><tr bgcolor='#ffffff'><td>\(self.yourNameLabel.text!)</td><td>\(self.institutionNameLabel.text!)</td><td> </td></tr><tr bgcolor='#ffffff'><td align='center'>\(self.dateLabel.text!)</td><td bgcolor='#fce3ce' align='right'>\(presetShiftLabel.text!)</td><td bgcolor='#fce3ce' align='right'>\(presetShiftTimeLabel.text!)</td></tr><tr bgcolor='#ffffff'><td bgcolor='#dbe8d5' align='right'>\(self.timeInLabel.text!)</td><td bgcolor='#dbe8d5' align='right'>\(self.timeLabel.text!)</td><td> </td></tr>\(self.pdfDataAdder)<tr bgcolor='#ffffff'><td bgcolor='#fff3cb' align='right'>\(self.totalPickUpLabel.text!)</td><td bgcolor='#fff3cb' align='right'>\(self.totalPickUpDurationLabel.text!)</td><td bgcolor='#fff3cb'>\(self.minLabel.text!)</td></tr><tr bgcolor='#ffffff'><td bgcolor='#fce3ce' align='right'>\(self.workTimeLabel.text!)</td><td bgcolor='#fce3ce' align='right'>\(self.workTimeDurationLabel.text!)</td><td bgcolor='#fce3ce'>\(self.workMinLabel.text!)</td></tr><tr bgcolor='#ffffff'><td bgcolor='#f1cccb' align='right'>\(self.timeOutLabel.text!)</td><td bgcolor='#f1cccb' align='right'>\(self.timeOutTimeLabel.text!)</td><td> </td></tr></table></div>"
+        html = "<div style='display: flex; justify-content: center;'><table width='50%' cellspacing='1' cellpadding='0' border='0' bgcolor='#999999' align='center'><tr bgcolor='#ffffff'><td>\(self.yourNameLabel.text!)</td><td>\(self.institutionNameLabel.text!)</td><td> </td></tr><tr bgcolor='#ffffff'><td align='center'>\(self.dateLabel.text!)</td><td bgcolor='#d9d9d9' align='right'>\(presetShiftLabel.text!)</td><td bgcolor='#d9d9d9' align='right'>\(presetShiftTimeLabel.text!)</td></tr><tr bgcolor='#ffffff'><td bgcolor='#fff2cc' align='right'>\(self.timeInLabel.text!)</td><td bgcolor='#fff2cc' align='right'>\(self.timeLabel.text!)</td><td> </td></tr>\(self.pdfDataAdder)<tr bgcolor='#ffffff'><td bgcolor='#f4cccc' align='right'>\(self.totalPickUpLabel.text!)</td><td bgcolor='#f4cccc' align='right'>\(self.totalPickUpDurationLabel.text!)</td><td bgcolor='#f4cccc'>\(self.minLabel.text!)</td></tr><tr bgcolor='#ffffff'><td bgcolor='#d9ead3' align='right'>\(self.workTimeLabel.text!)</td><td bgcolor='#d9ead3' align='right'>\(self.workTimeDurationLabel.text!)</td><td bgcolor='#d9ead3'>\(self.workMinLabel.text!)</td></tr><tr bgcolor='#ffffff'><td bgcolor='#fff2cc' align='right'>\(self.timeOutLabel.text!)</td><td bgcolor='#fff2cc' align='right'>\(self.timeOutTimeLabel.text!)</td><td> </td></tr></table></div>"
         //        <img src='data:image/png;base64,\(String(describing: base64String) )'></img>
 //        }
         if pdfCreatorCount == 0{
@@ -1035,12 +1035,12 @@ class ReceiptViewController: UIViewController, UICollectionViewDelegate, UIColle
         exitButton.widthAnchor.constraint(equalToConstant: 180).isActive = true
         exitButton.topAnchor.constraint(equalTo: lineSeparator2.bottomAnchor, constant: 15).isActive = true
 
-        mainContainerView.addSubview(logsButton)
-        logsButton.leftAnchor.constraint(equalTo: exitButton.rightAnchor, constant: 10).isActive = true
-        logsButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
-        logsButton.widthAnchor.constraint(equalToConstant: 50).isActive = true
-        logsButton.topAnchor.constraint(equalTo: lineSeparator2.bottomAnchor, constant: 15).isActive = true
-        
+//        mainContainerView.addSubview(logsButton)
+//        logsButton.leftAnchor.constraint(equalTo: exitButton.rightAnchor, constant: 10).isActive = true
+//        logsButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
+//        logsButton.widthAnchor.constraint(equalToConstant: 50).isActive = true
+//        logsButton.topAnchor.constraint(equalTo: lineSeparator2.bottomAnchor, constant: 15).isActive = true
+
         self.view.addSubview(self.boxView)
     }
 }

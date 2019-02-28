@@ -41,10 +41,34 @@ class CameraViewController: UIViewController, AVCaptureMetadataOutputObjectsDele
     }
     
     @objc func backButton(){
+        deletePdf()
         let viewController = ViewController()
         let aObjNavi = UINavigationController(rootViewController: viewController)
         let appDelegate: AppDelegate = (UIApplication.shared.delegate as? AppDelegate)!
         appDelegate.window?.rootViewController = aObjNavi
+    }
+    
+    func deletePdf(){
+        let path = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0] as String
+        let myurl = NSURL(fileURLWithPath: path)
+        if let pathComponent = myurl.appendingPathComponent("\(self.yourName)_\(self.sessionName)_Kapper.pdf") {
+            let filePath = pathComponent.path
+            print(pathComponent.path)
+            do {
+                let fileManager = FileManager.default
+                if fileManager.fileExists(atPath: filePath) {
+                    try fileManager.removeItem(atPath: filePath)
+                } else {
+                    print("File does not exist")
+                }
+            }
+            catch let error as NSError {
+                print("An error took place: \(error)")
+            }
+        }
+        else {
+            print("FILE PATH NOT AVAILABLE")
+        }
     }
     
     let qrImageView: UIImageView = {
@@ -114,6 +138,7 @@ class CameraViewController: UIViewController, AVCaptureMetadataOutputObjectsDele
     var html = """
                 """
     var pdfDataAdder = ""
+    
     func generateQrCode(arg: Bool, completion: (Bool) -> ()){
         let data = self.dataFromQr.data(using: .ascii, allowLossyConversion: false)
         let filter = CIFilter(name: "CIQRCodeGenerator")
@@ -124,7 +149,7 @@ class CameraViewController: UIViewController, AVCaptureMetadataOutputObjectsDele
     }
     
     func createPdf(arg: Bool, completion: (Bool) -> ()){
-        html = "<div style='display: flex; justify-content: center;'><table width='50%' cellspacing='1' cellpadding='0' border='0' bgcolor='#999999' align='center'><tr bgcolor='#ffffff'><td>\(self.yourName)</td><td>\(self.sessionName)</td><td> </td></tr><tr bgcolor='#ffffff'><td align='center'>\(self.currentDate)</td><td bgcolor='#fce3ce' align='right'>PRESET SHIFT:</td><td bgcolor='#fce3ce' align='right'>\(self.presetShiftDuration)</td></tr><tr bgcolor='#ffffff'><td bgcolor='#dbe8d5' align='right'>CLOCK IN:</td><td bgcolor='#dbe8d5' align='right'>\(self.clockInTime)</td><td> </td></tr>\(self.pdfDataAdder)<tr bgcolor='#ffffff'><td bgcolor='#fff3cb' align='right'>Phone Activity:</td><td bgcolor='#fff3cb' align='right'>\(self.phoneActivityDuration)</td><td bgcolor='#fff3cb'>\(self.phoneActivityMinLabel)</td></tr><tr bgcolor='#ffffff'><td bgcolor='#fce3ce' align='right'>WORK TIME:</td><td bgcolor='#fce3ce' align='right'>\(self.workDuration)</td><td bgcolor='#fce3ce'>\(self.workMinLabel)</td></tr><tr bgcolor='#ffffff'><td bgcolor='#f1cccb' align='right'>CLOCKED OUT:</td><td bgcolor='#f1cccb' align='right'>\(self.clockOutTime)</td><td> </td></tr></table></div>"
+        html = "<div style='display: flex; justify-content: center;'><table width='50%' cellspacing='1' cellpadding='0' border='0' bgcolor='#999999' align='center'><tr bgcolor='#ffffff'><td>\(self.yourName)</td><td>\(self.sessionName)</td><td> </td></tr><tr bgcolor='#ffffff'><td align='center'>\(self.currentDate)</td><td bgcolor='#d9d9d9' align='right'>PRESET SHIFT:</td><td bgcolor='#d9d9d9' align='right'>\(self.presetShiftDuration)</td></tr><tr bgcolor='#ffffff'><td bgcolor='#fff2cc' align='right'>CLOCKED IN:</td><td bgcolor='#fff2cc' align='right'>\(self.clockInTime)</td><td> </td></tr>\(self.pdfDataAdder)<tr bgcolor='#ffffff'><td bgcolor='#f4cccc' align='right'>Phone Activity:</td><td bgcolor='#f4cccc' align='right'>\(self.phoneActivityDuration)</td><td bgcolor='#f4cccc'>\(self.phoneActivityMinLabel)</td></tr><tr bgcolor='#ffffff'><td bgcolor='#d9ead3' align='right'>KAPPER TIME:</td><td bgcolor='#d9ead3' align='right'>\(self.workDuration)</td><td bgcolor='#d9ead3'>\(self.workMinLabel)</td></tr><tr bgcolor='#ffffff'><td bgcolor='#fff2cc' align='right'>CLOCKED OUT:</td><td bgcolor='#fff2cc' align='right'>\(self.clockOutTime)</td><td> </td></tr></table></div>"
         
         generateQrCode(arg: true, completion: { (success) -> Void in
             print("QR Code Generated")
@@ -198,10 +223,10 @@ class CameraViewController: UIViewController, AVCaptureMetadataOutputObjectsDele
         // 5. Save PDF file
         
         let documentsPath = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0]
-        pdfData.write(toFile: "\(documentsPath)/Kapper.pdf", atomically: true)
+        pdfData.write(toFile: "\(documentsPath)/\(self.yourName)_\(self.sessionName)_Kapper.pdf", atomically: true)
         print("\(documentsPath)/Kapper.pdf")
         webView.removeFromSuperview()
-        let dc = UIDocumentInteractionController(url: URL(fileURLWithPath: "\(documentsPath)/Kapper.pdf"))
+        let dc = UIDocumentInteractionController(url: URL(fileURLWithPath: "\(documentsPath)/\(self.yourName)_\(self.sessionName)_Kapper.pdf"))
         dc.delegate = self
         dc.presentPreview(animated: true)
         print("PDF displayed")
